@@ -1,0 +1,25 @@
+{
+    "sense2gol":{
+        "acquisition-time-s":1,
+        "samples-per-frame":128,
+        "overhead":100
+    },
+    "signal-processing":{
+        "fft-resolution-Hz":1,
+        "smoothing-window-Hz":10,
+        "bandwidth-threshold-dB":6,
+        "hanning-windowing":true,
+        "zero-forcing":true,
+        "frequency-min-Hz":-1000,
+        "frequency-max-Hz":1000
+    },
+    "raspberry-pi-zero":{
+        "raw-data":true,
+        "realtime-measurements":true,
+        "target-threshold-dBV":-60
+    },
+    "statistical-analysis":{
+        "enabling":true,
+        "episodes-number":5
+    }
+}
