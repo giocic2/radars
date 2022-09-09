@@ -6,7 +6,7 @@ import serial
 from datetime import datetime
 import os.path
 import sys
-sys.path.insert(1, "..")
+sys.path.insert(1, ".")
 from custom_modules.FFT import FFT_complex
 
 
@@ -19,8 +19,10 @@ def main():
 
     # Sense2GoL settings
     SAMPLING_FREQUENCY = 3e3 # Hz
+    print('Sampling frequency: {:,}'.format(SAMPLING_FREQUENCY) + ' Hz')
     time_resolution = 1/SAMPLING_FREQUENCY # s
     ACQUISITION_TIME = settings["sense2gol"]["acquisition-time-s"] # s
+    print("Acquisition time (for each direction): ", ACQUISITION_TIME, ' s')
     SAMPLES_PER_FRAME = settings["sense2gol"]["samples-per-frame"]
     frames = round(ACQUISITION_TIME * SAMPLING_FREQUENCY / SAMPLES_PER_FRAME)
     OVERHEAD = settings["sense2gol"]["overhead"]
@@ -66,7 +68,7 @@ def main():
         connected = True
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     samplesFileName = timestamp + ".txt"
-    completeFileName = os.path.join('raw-samples',samplesFileName)
+    completeFileName = os.path.join('sense2gol_pizero/raw-samples',samplesFileName)
     # open text file to store the current   
     text_file = open(completeFileName, 'wb')
     # read serial data and write it to the text file
