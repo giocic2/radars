@@ -24,8 +24,10 @@ def main():
     time_resolution = 1/SAMPLING_FREQUENCY # s
     ACQUISITION_TIME = settings["sense2gol"]["acquisition-time-s"] # s
     print("Acquisition time (for each direction): ", ACQUISITION_TIME, ' s')
-    SAMPLES_PER_FRAME = settings["sense2gol"]["samples-per-frame"]
+    SAMPLES_PER_FRAME = int(settings["sense2gol"]["samples-per-frame"])
     frames = round(ACQUISITION_TIME * SAMPLING_FREQUENCY / SAMPLES_PER_FRAME)
+    print("Samples per frame (for each direction): ", SAMPLES_PER_FRAME)
+    print("Number of frames (for each direction): ", frames)
     OVERHEAD = settings["sense2gol"]["overhead"]
     lines_read = (frames * 8 + 1 + 1) * 2 + OVERHEAD
 
