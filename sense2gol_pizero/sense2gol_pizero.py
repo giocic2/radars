@@ -9,6 +9,9 @@ import os.path
 import sys
 sys.path.insert(1, ".")
 from custom_modules.FFT import FFT_complex
+import itertools
+import numpy as np
+import re
 
 
 def main():
@@ -23,14 +26,14 @@ def main():
     print('Sampling frequency: {:,}'.format(SAMPLING_FREQUENCY) + ' Hz')
     time_resolution = 1/SAMPLING_FREQUENCY # s
     print('Time resolution: {:,}'.format(time_resolution) + ' s')
-    ACQUISITION_TIME = settings["sense2gol"]["acquisition-time-s"] # s
-    print("Acquisition time (for each direction): ", ACQUISITION_TIME, ' s')
+    FRAMES = int(settings["sense2gol"]["number-of-frames"])
+    print("Number of frames (for each direction): ", FRAMES)
     SAMPLES_PER_FRAME = int(settings["sense2gol"]["samples-per-frame"])
-    frames = round(ACQUISITION_TIME * SAMPLING_FREQUENCY / SAMPLES_PER_FRAME)
     print("Samples per frame (for each direction): ", SAMPLES_PER_FRAME)
-    print("Number of frames (for each direction): ", frames)
+    EQ_ACQUISITION_TIME = 1/SAMPLING_FREQUENCY*SAMPLES_PER_FRAME*FRAMES
+    print("Equivalent acquisition time (for each direction): {:,}", EQ_ACQUISITION_TIME, ' s')
     OVERHEAD = settings["sense2gol"]["overhead"]
-    lines_read = (frames * 8 + 1 + 1) * 2 + OVERHEAD
+    lines_to_be_read = (FRAMES * 8 + 1 + 1) * 2 + OVERHEAD
 
     # Signal processing settings
     FFT_RESOL = settings["signal-processing"]["fft-resolution-Hz"] # Hz
@@ -78,7 +81,7 @@ def main():
     # read serial data and write it to the text file
     index = 0
     print("Acquisition started...")
-    while index <= lines_read:
+    while index <= lines_to_be_read:
         if S2GL.inWaiting():
             x=S2GL.readline()
             text_file.write(x)
@@ -91,6 +94,58 @@ def main():
     # close the serial connection and text file
     text_file.close()
     S2GL.close()
+
+    # Extract raw samples from txt file
+    text_file = open(completeFileName, 'rb')
+    temp_line = text_file.readline()
+    done = False
+    I_samples = []
+    Q_samples = []
+    # Locate I samples
+    temp_line = text_file.readline()
+    temp_line = temp_line.decode('ascii')
+    while temp_line != '  ------------- I raw samples ------------- \n':
+        temp_line = text_file.readline()
+        temp_line = temp_line.decode('ascii')
+
+    while not done:
+        if temp_line == '  ------------- I raw samples ------------- \n':
+            temp_line = text_file.readline()
+            temp_line = temp_line.decode('ascii')
+            while temp_line != '  ------------- Q raw samples ------------- \n':
+                temp_line_int = list(map(int, re.findall(r'\d+', temp_line)))
+                if temp_line_int != '\r\n':
+                    I_samples = list(itertools.chain(I_samples, temp_line_int))
+                temp_line = text_file.readline()
+                temp_line = temp_line.decode('ascii')
+                if temp_line == '':
+                    done = True
+                    break
+            if temp_line == '  ------------- Q raw samples ------------- \n':
+                temp_line = text_file.readline()
+                temp_line = temp_line.decode('ascii')
+        temp_line_int = list(map(int, re.findall(r'\d+', temp_line)))
+        if temp_line_int != '\r\n' and temp_line != '':
+            Q_samples = list(itertools.chain(Q_samples, temp_line_int))
+        temp_line = text_file.readline()
+        temp_line = temp_line.decode('ascii')
+        if temp_line == '':
+            done = True
+    print("Raw data extracted from .txt file.")
+    print("Number of IFI samples: ", len(I_samples))
+    print("Number of IFQ samples: ", len(Q_samples))
+
+    array_length = min(len(I_samples), len(Q_samples))
+    print("Processed signals length: ", array_length)
+
+    # Seems that Q and I needs to be inverted
+    Q_array = np.array(I_samples[0:array_length])
+    I_array = np.array(Q_samples[0:array_length])
+
+    complexSignal_mV = np.array(array_length)
+    complexSignal_mV = np.add(I_array, 1j*Q_array)
+
+    timeAxis = np.linspace(start=0, num=array_length, stop=array_length, endpoint=False)
     
 
     FFT_complex(samplingFrequency=SAMPLING_FREQUENCY, resolution=FFT_RESOL, smoothingWindow=SMOOTHING_WINDOW, frequencyMin=FREQUENCY_MIN, frequencyMax=FREQUENCY_MAX)
