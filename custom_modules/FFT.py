@@ -16,4 +16,4 @@ def FFT_complex(samplingFrequency, resolution, smoothingWindow, frequencyMin, fr
     print("Maximum frequency of interest: {:.1f} Hz".format(frequencyMin))
 
 if __name__ == "__main__":
-    print("Standalone script to be completed.")
+    print("Standalone script not yet developed.")

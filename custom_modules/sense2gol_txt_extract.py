@@ -53,4 +53,4 @@ def txt_extract(file_name):
     return I_array, Q_array, array_length
 
 if __name__ == "__main__":
-    print("Standalone script to be completed.")
+    print("Standalone script not yet developed.")
