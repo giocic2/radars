@@ -9,7 +9,7 @@ import os.path
 import sys
 sys.path.insert(1, ".")
 from custom_modules.FFT import FFT_complex
-from sense2gol_pizero.extract_samples_from_txt import txt_extract
+from custom_modules.sense2gol_txt_extract import txt_extract
 import numpy as np
 
 
