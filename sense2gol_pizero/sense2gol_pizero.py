@@ -51,7 +51,7 @@ def main():
     connected = False
     # Establish connection to the serial port that your Sense2GoL 
     # is connected to.
-    LOCATIONS=['7dev7ttyACM0']
+    LOCATIONS=['/dev/ttyACM0']
     for device in LOCATIONS:
         try:
             print("Trying...",device)
