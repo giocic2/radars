@@ -22,6 +22,7 @@ def main():
     SAMPLING_FREQUENCY = 3e3 # Hz
     print('Sampling frequency: {:,}'.format(SAMPLING_FREQUENCY) + ' Hz')
     time_resolution = 1/SAMPLING_FREQUENCY # s
+    print('Time resolution: {:,}'.format(time_resolution) + ' s')
     ACQUISITION_TIME = settings["sense2gol"]["acquisition-time-s"] # s
     print("Acquisition time (for each direction): ", ACQUISITION_TIME, ' s')
     SAMPLES_PER_FRAME = int(settings["sense2gol"]["samples-per-frame"])
