@@ -1,6 +1,6 @@
 {
     "sense2gol":{
-        "acquisition-time-s":1,
+        "number-of-frames":1,
         "samples-per-frame":128,
         "overhead":100
     },
