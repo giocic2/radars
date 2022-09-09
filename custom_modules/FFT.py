@@ -14,3 +14,6 @@ def FFT_complex(samplingFrequency, resolution, smoothingWindow, frequencyMin, fr
     maxBin = int(freqBins_FFT/2 + np.round(frequencyMax / (samplingFrequency/freqBins_FFT)))
     frequencyMax = -samplingFrequency/2 + maxBin * samplingFrequency/freqBins_FFT
     print("Maximum frequency of interest: {:.1f} Hz".format(frequencyMin))
+
+if __name__ == "__main__":
+    print("Standalone script to be completed.")
