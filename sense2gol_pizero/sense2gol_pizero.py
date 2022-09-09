@@ -7,14 +7,13 @@ from datetime import datetime
 import os.path
 import sys
 sys.path.insert(1, ".")
-sys.path.insert(2, "..")
 from custom_modules.FFT import FFT_complex
 
 
 def main():
 
     # Load settings from *.json file.
-    with open('settings.json') as f:
+    with open('sense2gol_pizero/settings.json') as f:
         settings = json.load(f)
     f.close()
 
