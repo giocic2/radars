@@ -1,2 +1,2 @@
 sense2gol_pizero/raw-samples/*.txt
-sense2gol_pizero/custom_modules/__pycache__/*
+custom_modules/__pycache__/*
