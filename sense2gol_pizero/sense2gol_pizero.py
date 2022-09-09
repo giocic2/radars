@@ -45,13 +45,13 @@ def main():
     EPISODES = int(settings["statistical-analysis"]["episodes-number"]) # Number of episodes for the statystical analysis.
     if STATISTICAL_ANALYSIS == True:
         assert (EPISODES>=3), "Number of episodes should be 3 at least. Please edit \"settings.json\"."
-    '''
+    
     # Boolean variable that will represent 
     # whether or not the Sense2GoL is connected
     connected = False
     # Establish connection to the serial port that your Sense2GoL 
     # is connected to.
-    LOCATIONS=['COM6']
+    LOCATIONS=['7dev7ttyACM0']
     for device in LOCATIONS:
         try:
             print("Trying...",device)
@@ -85,7 +85,7 @@ def main():
     # close the serial connection and text file
     text_file.close()
     S2GL.close()
-    '''
+    
 
     FFT_complex(samplingFrequency=SAMPLING_FREQUENCY, resolution=FFT_RESOL, smoothingWindow=SMOOTHING_WINDOW, frequencyMin=FREQUENCY_MIN, frequencyMax=FREQUENCY_MAX)
 
