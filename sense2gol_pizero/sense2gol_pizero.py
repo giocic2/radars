@@ -71,7 +71,8 @@ def main():
     surface_velocities_table = np.zeros((EPISODES, DIRECTIONS))
 
     for episode in range(EPISODES):
-        for direction_DEG in antennaBeamDirections_DEG:
+        for direction in range(DIRECTIONS):
+            direction_DEG = antennaBeamDirections_DEG[direction]
             # Boolean variable that will represent 
             # whether or not the Sense2GoL is connected
             connected = False
