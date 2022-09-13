@@ -35,7 +35,7 @@ def main():
     OVERHEAD = int(settings["sense2gol"]["overhead"])
     lines_to_be_read = int((FRAMES * 8 + 1 + 1) * 2 + OVERHEAD)
     ADC_RANGE_BITS = int(2**settings["sense2gol"]["adc-resolution-bits"]) # Bits.
-    ADC_RANGE_V = settings["sense2gol"]["adc-resolution"] # Volts.
+    ADC_RANGE_V = settings["sense2gol"]["adc-range-v"] # Volts.
 
     # Signal processing settings
     COMPLEX_FFT = settings["signal-processing"]["complex-fft"] # Boolean. If True, the FFT of a complex signal (two-sided spectrum) is computed.
