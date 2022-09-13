@@ -2,21 +2,28 @@
     "sense2gol":{
         "number-of-frames":1,
         "samples-per-frame":128,
-        "overhead":100
+        "overhead":100,
+        "adc-resolution-bits":12,
+        "adc-range-v":3.3
     },
     "signal-processing":{
+        "complex-fft":true,
         "fft-resolution-Hz":1,
+        "fft-smoothing":true,
         "smoothing-window-Hz":10,
         "bandwidth-threshold-dB":6,
         "hanning-windowing":true,
         "zero-forcing":true,
         "frequency-min-Hz":-1000,
-        "frequency-max-Hz":1000
+        "frequency-max-Hz":1000,
+        "print-fft-info":true,
+        "offset-removal":true
     },
     "raspberry-pi-zero":{
         "raw-data":true,
         "realtime-measurements":true,
-        "target-threshold-dBV":-60
+        "target-threshold-dBV":-60.0,
+        "directions":3
     },
     "statistical-analysis":{
         "enabling":true,
