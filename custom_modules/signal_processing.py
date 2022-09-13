@@ -89,12 +89,14 @@ def FFT(signal_mV, complexFFT: bool, totalSamples: int, samplingFrequency: float
     
     if (FFT_dBV_max < targetThreshold):
         print('WARNING: Target not detected.')
+        centroid_frequency = 0 # Hz
     elif (FFT_dBV[minBin] >= FFT_dBV_max - bandwidthThreshold):
         print('WARNING: The zero-forcing window is too narrow.')
+        raise ValueError
     else:
         # Doppler centroid
         centroid_frequency = centroid_estimation(FFT_dBV, bandwidthThreshold, freqAxis_Hz, frequencyMin_fixed, FFT_dBV_max)
-        surface_velocity = evaluate_surface_velocity(centroid_frequency, antennaBeamDirection_DEG, tiltAngle_DEG)
+    surface_velocity = evaluate_surface_velocity(centroid_frequency, antennaBeamDirection_DEG, tiltAngle_DEG)
     return FFT_dBV_max, centroid_frequency, surface_velocity
 
 if __name__ == "__main__":
