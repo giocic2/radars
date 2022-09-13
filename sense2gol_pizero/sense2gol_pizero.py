@@ -22,7 +22,6 @@ def main():
     f.close()
 
     # Sense2GoL settings
-    COMPLEX_FFT = settings["sense2gol"]["complex-fft"] # Boolean. If True, the FFT of a complex signal (two-sided spectrum) is computed.
     SAMPLING_FREQUENCY = 3e3 # Hz
     print('Sampling frequency: {:,}'.format(SAMPLING_FREQUENCY) + ' Hz')
     time_resolution = 1/SAMPLING_FREQUENCY # s
@@ -39,6 +38,7 @@ def main():
     ADC_RANGE_V = settings["sense2gol"]["adc-resolution"] # Volts.
 
     # Signal processing settings
+    COMPLEX_FFT = settings["signal-processing"]["complex-fft"] # Boolean. If True, the FFT of a complex signal (two-sided spectrum) is computed.
     FFT_RESOL = settings["signal-processing"]["fft-resolution-Hz"] # Hz
     SMOOTHING = settings["signal-processing"]["fft-smoothing"] # Boolean.
     SMOOTHING_WINDOW = settings["signal-processing"]["smoothing-window-Hz"] # Hz. Smoothing of FFT spectrum done with moving average.
