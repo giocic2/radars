@@ -29,7 +29,7 @@ def FFT_parameters(complexFFT: bool, samplingFrequency: float, resolution: float
         print("Maximum frequency of interest: {:.1f} Hz".format(frequencyMin_fixed))
     return True  
 
-def centroid_estimation(inputArray, bandwidthThreshold, freqAxis_Hz, frequencyMin):
+def centroid_estimation(inputArray, bandwidthThreshold, freqAxis_Hz, frequencyMin, FFT_dBV_max):
     maxValue = np.amax(inputArray)
     freqIndex = 0
     stopIndex = 0
@@ -49,19 +49,20 @@ def centroid_estimation(inputArray, bandwidthThreshold, freqAxis_Hz, frequencyMi
             if freqIndex >= (freqBins_FFT+1):
                 centroidDetected = True
                 break
-    centroid_frequencies[episodeNumber, directionIndex] = (stopBand + startBand)/2
-    surface_velocities_table[episodeNumber, directionIndex] = (3e8 * (stopBand + startBand)/2) / (2 * (VCOfreq * 1e6) * np.cos(np.deg2rad(directions_DEG[directionIndex]) * np.cos(tiltAngle_avg)))
-    print('Amplitude of FFT peak: {:.1f}'.format(np.amax(FFT_dBV)) + ' dBV')
-    print('Amplitude of FFT peak (norm.smooth.): {:.1f}'.format(FFT_norm_dB_smooth_max) + ' dB')
-    print('Bandwidth threshold (norm.smooth.): {:.1f}'.format(FFT_norm_dB_smooth_max - BANDWIDTH_THRESHOLD) + ' dB')
+    centroid_frequency = (stopBand + startBand)/2
+    print('Amplitude of FFT peak: {:.1f}'.format(FFT_dBV_max) + ' dBV')
+    print('Bandwidth threshold (norm.smooth.): {:.1f}'.format(FFT_dBV_max - bandwidthThreshold) + ' dB')
     print('Bandwidth: {:.1f}'.format(stopBand - startBand) + ' Hz')
     print('Bandwidth starts at {:.1f}'.format(startBand) + ' Hz')
     print('Bandwidth stops at {:.1f}'.format(stopBand) + ' Hz')
-    print('Center of Doppler centroid: {:.1f}'.format((stopBand + startBand)/2) + ' Hz')
-    print('Resulting surface velocity: {:.1f}'.format((3e8 * (stopBand + startBand)/2) / (2 * (VCOfreq * 1e6) * np.cos(np.deg2rad(directions_DEG[directionIndex]) * np.cos(tiltAngle_avg)))), ' m/s')
+    print('Center frequency of Doppler centroid: {:.1f}'.format(centroid_frequency) + ' Hz')
+    return centroid_frequency
 
+def evaluate_surface_velocity(centroid_frequency, antennaBeamDirection_DEG, tiltAngle_DEG):
+    surface_velocity = (3e8 * centroid_frequency) / (2 * (24.125e9) * np.cos(np.deg2rad(antennaBeamDirection_DEG) * np.cos(np.deg2rad(tiltAngle_DEG))))
+    print('Resulting surface velocity: {:.1f}'.format((3e8 * centroid_frequency) / (2 * (24.125e9) * np.cos(np.deg2rad(antennaBeamDirection_DEG) * np.cos(tiltAngle_DEG)))), ' m/s')
 
-def FFT(signal_mV, complexFFT: bool, totalSamples: int, samplingFrequency: float, offsetRemoval: bool, hanningWindowing: bool, zeroForcing: bool, smoothing: bool, targetThreshold: float, bandwidthThreshold: float):
+def FFT(signal_mV, complexFFT: bool, totalSamples: int, samplingFrequency: float, offsetRemoval: bool, hanningWindowing: bool, zeroForcing: bool, smoothing: bool, targetThreshold: float, bandwidthThreshold: float, antennaBeamDirection_DEG: float, tiltAngle_DEG: float):
     if complexFFT == True: # FFT of complex signal
         if offsetRemoval==True:
             signal_mV = signal_mV - np.mean(signal_mV)
@@ -72,31 +73,29 @@ def FFT(signal_mV, complexFFT: bool, totalSamples: int, samplingFrequency: float
         if zeroForcing == True:
             FFT_mV[0:minBin] = 0
             FFT_mV[maxBin:-1] = 0
-        FFT_max = np.amax(FFT_mV)
         FFT_dBV = 20*np.log10(FFT_mV/1000)
+        FFT_dBV_max = np.amax(FFT_dBV)
+        if smoothing == True:
+            FFT_dBV = np.convolve(FFT_dBV, np.ones(smoothingBins), 'same') / smoothingBins
+            FFT_dBV_max_previous = FFT_dBV_max
+            FFT_dBV_max = np.amax(FFT_dBV)
+            shift_of_FFT_max = FFT_dBV_max_previous - FFT_dBV_max # dB
+            print("After smoothing, the FTT peak is shifted by {:.1f} dB".format(shift_of_FFT_max))
         freqAxis = np.fft.fftshift(np.fft.fftfreq(freqBins_FFT)) # freqBins+1
         freqAxis_Hz = freqAxis * samplingFrequency
-        # FFT normalization
-        FFT_norm = FFT_mV / FFT_max
-        FFT_norm_max = np.amax(FFT_norm)
-        if smoothing == True:
-            FFT_norm = np.convolve(FFT_norm, np.ones(smoothingBins), 'same') / smoothingBins
-            shift_of_FFT_max = FFT_norm_max - np.amax(FFT_norm)
-            print("After smoothing, the FTT peak is shifted by {:.1f} dB".format(20*np.log10(shift_of_FFT_max)))
-        FFT_norm_dB = 20*np.log10(FFT_norm)
-        FFT_norm_dB_max = np.amax(FFT_norm_dB)
-        peakFreq = freqAxis_Hz[FFT_norm_dB.argmax()] # If two identical maxima, only the first occurrence is shown (negative frequency)
+        peakFreq = freqAxis_Hz[FFT_dBV.argmax()] # If two identical maxima, only the first occurrence is shown (negative frequency)
     else: # FFT of real signal
         print("real FFT to be completed")
     
-    if (np.amax(FFT_norm_dB) < targetThreshold):
+    if (FFT_dBV_max < targetThreshold):
         print('WARNING: Target not detected.')
-    elif (FFT_norm_dB[minBin] >= np.amax(FFT_norm_dB) - bandwidthThreshold):
+    elif (FFT_dBV[minBin] >= FFT_dBV_max - bandwidthThreshold):
         print('WARNING: The zero-forcing window is too narrow.')
     else:
         # Doppler centroid
-        centroid_estimation(FFT_norm_dB, bandwidthThreshold, freqAxis_Hz, frequencyMin_fixed)
-
+        centroid_frequency = centroid_estimation(FFT_dBV, bandwidthThreshold, freqAxis_Hz, frequencyMin_fixed, FFT_dBV_max)
+        surface_velocity = evaluate_surface_velocity(centroid_frequency, antennaBeamDirection_DEG, tiltAngle_DEG)
+    return FFT_dBV_max, centroid_frequency, surface_velocity
 
 if __name__ == "__main__":
     print("Standalone script not yet developed.")

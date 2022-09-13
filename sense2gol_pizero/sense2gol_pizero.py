@@ -9,7 +9,7 @@ from datetime import datetime
 import os.path
 import sys
 sys.path.insert(1, ".")
-from custom_modules.FFT import FFT_parameters, FFT
+from custom_modules.signal_processing import FFT_parameters, FFT
 from custom_modules.sense2gol_rawdata import txt_extract, txt_generate
 import numpy as np
 
@@ -56,6 +56,8 @@ def main():
     REALTIME_MEAS = settings["raspberry-pi-zero"]["realtime-measurements"] # Boolean. Real-time measurements of Doppler velocity.
     TARGET_THRESHOLD = settings["raspberry-pi-zero"]["target-threshold-dBV"] # dBV. If FFT maximum is under this value, target not detected.
     DIRECTIONS = settings["raspberry-pi-zero"]["directions"]
+    antennaBeamDirections_DEG = np.linspace(start=-15, stop=+15, num=DIRECTIONS, endpoint=True) # Degrees.
+    tiltAngle_DEG = 45 # Degrees.
 
     # Statistical analysis settings
     STATISTICAL_ANALYSIS = settings["statistical-analysis"]["enabling"] # Boolean. Enable/disable statystical analysis.
@@ -63,8 +65,13 @@ def main():
     if STATISTICAL_ANALYSIS == True:
         assert (EPISODES>=3), "Number of episodes should be 3 at least. Please edit \"settings.json\"."
     
+    # Array to save FFT peak amplitudes and frequencies
+    FFT_dBV_peaks = np.zeros((EPISODES, DIRECTIONS))
+    centroid_frequencies = np.zeros((EPISODES, DIRECTIONS))
+    surface_velocities_table = np.zeros((EPISODES, DIRECTIONS))
+
     for episode in range(EPISODES):
-        for direction in range(DIRECTIONS):
+        for direction in antennaBeamDirections_DEG:
             # Boolean variable that will represent 
             # whether or not the Sense2GoL is connected
             connected = False
@@ -95,7 +102,7 @@ def main():
             timeAxis_s = np.linspace(start=0, num=array_length, stop=array_length, endpoint=False) / SAMPLING_FREQUENCY
             
             assert FFT_initialized, "FFT not initialized. Use \'FFT_parameters()\' from FFT.py costum module."
-            FFT(complexSignal_mV, COMPLEX_FFT, array_length, SAMPLING_FREQUENCY, OFFSET_REMOVAL, HANNING_WINDOWING, ZERO_FORCING, SMOOTHING, TARGET_THRESHOLD, BANDWIDTH_THRESHOLD)
+            FFT_dBV_peaks[episode,direction], centroid_frequencies[episode,direction], surface_velocities_table[episode,direction] = FFT(complexSignal_mV, COMPLEX_FFT, array_length, SAMPLING_FREQUENCY, OFFSET_REMOVAL, HANNING_WINDOWING, ZERO_FORCING, SMOOTHING, TARGET_THRESHOLD, BANDWIDTH_THRESHOLD)
 
 if __name__ == "__main__":
     main()
