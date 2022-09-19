@@ -2,6 +2,7 @@ import numpy as np
 import itertools
 import re
 import os
+import easygui
 
 def txt_extract(file_name):
     # Extract raw samples from txt file
@@ -76,4 +77,15 @@ def txt_generate(serialDevice, lines_to_be_read, timestamp):
     return completeFileName
 
 if __name__ == "__main__":
-    print("Standalone script not yet developed.")
+    # Open raw samples from *.txt files
+    txt_filename = None
+    while txt_filename == None:
+        txt_filename = easygui.fileopenbox(title = "Choose *.txt file to analyse...", default = "*.txt")
+    print(txt_filename)
+    # Open acquisition settings
+    json_filename = None
+    while json_filename == None:
+        json_filename = easygui.fileopenbox(title = "Choose *.json file to lead acquisition settings...", default = "*.json")
+    print(json_filename)
+
+    I_array, Q_array, array_length = txt_extract(txt_filename)
