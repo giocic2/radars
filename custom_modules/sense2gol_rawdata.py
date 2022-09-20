@@ -89,8 +89,8 @@ if __name__ == "__main__":
         txt_filename = easygui.fileopenbox(title = "Choose *.txt file to analyse...", default = "*.txt")
     print(txt_filename)
     # Read tilt angle and direction angle from filename
-    tiltAngle_DEG = re.search('__tilt(.+?)deg__', txt_filename)
-    antennaBeamDirection_DEG = re.search('__dir(.+?)deg', txt_filename)
+    tiltAngle_DEG = float(re.search('__tilt(.+?)deg__', txt_filename))
+    antennaBeamDirection_DEG = float(re.search('__dir(.+?)deg', txt_filename))
     # Open acquisition settings
     json_filename = None
     while json_filename == None:
