@@ -27,10 +27,10 @@
         "pdf-plot":false,
         "realtime-measurements":true,
         "target-threshold-dBV":-90.0,
-        "directions":3
+        "directions":2
     },
     "statistical-analysis":{
         "enabling":true,
-        "episodes-number":5
+        "episodes-number":3
     }
 }
