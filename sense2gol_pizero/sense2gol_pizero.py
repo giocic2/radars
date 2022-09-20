@@ -68,6 +68,7 @@ def main():
     DIRECTIONS = settings["raspberry-pi-zero"]["directions"]
     antennaBeamDirections_DEG = np.linspace(start=-15, stop=+15, num=DIRECTIONS, endpoint=True) # Degrees.
     tiltAngle_DEG = 45 # Degrees.
+    tiltAngle_DEG_str = "tilt" + str("{0:.1f}".format(np.rad2deg(tiltAngle_DEG))) + "deg"
 
     # Statistical analysis settings
     STATISTICAL_ANALYSIS = settings["statistical-analysis"]["enabling"] # Boolean. Enable/disable statystical analysis.
@@ -87,6 +88,7 @@ def main():
             print("*****************")
             print("Scanning direction " + str(direction+1) + " of " + str(DIRECTIONS) + "...")
             direction_DEG = antennaBeamDirections_DEG[direction]
+            direction_DEG_str = "dir" + str("{0:.1f}".format(np.rad2deg(direction_DEG))) + "deg"
             # Boolean variable that will represent 
             # whether or not the Sense2GoL is connected
             connected = False
@@ -106,7 +108,8 @@ def main():
                 serin = S2GL.read()
                 connected = True
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            completeFileName = txt_generate(S2GL, lines_to_be_read, timestamp)
+            raw_data_label = timestamp + "__" + tiltAngle_DEG_str + "__" + direction_DEG_str
+            completeFileName = txt_generate(S2GL, lines_to_be_read, raw_data_label)
             S2GL.close()
 
             I_array, Q_array, array_length = txt_extract(completeFileName)
