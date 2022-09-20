@@ -13,6 +13,7 @@ from custom_modules.signal_processing import FFT_parameters, FFT
 from custom_modules.sense2gol_rawdata import txt_extract, txt_generate
 import numpy as np
 import shutil
+import time
 
 
 def main():
@@ -26,6 +27,7 @@ def main():
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     json_filename = "./sense2gol_pizero/raw-samples/" + timestamp + ".json"
     shutil.copyfile("./sense2gol_pizero/settings.json",json_filename)
+    time.sleep(1)
 
     # Sense2GoL settings
     SAMPLING_FREQUENCY = 3e3 # Hz
