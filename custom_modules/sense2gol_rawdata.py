@@ -4,6 +4,8 @@ import re
 import os
 import easygui
 from plots_readytouse import plot_paper_format
+import sys
+sys.path.insert(1, ".")
 
 def txt_extract(file_name):
     # Extract raw samples from txt file
