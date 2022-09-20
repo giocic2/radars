@@ -3,6 +3,7 @@ import itertools
 import re
 import os
 import easygui
+from plots_readytouse import plot_paper_format
 
 def txt_extract(file_name):
     # Extract raw samples from txt file
@@ -89,3 +90,5 @@ if __name__ == "__main__":
     print(json_filename)
 
     I_array, Q_array, array_length = txt_extract(txt_filename)
+    timeAxis = np.linspace(start=0, num=array_length, stop=array_length, endpoint=False)
+    plot_paper_format(timeAxis, I_array, timestamp=None, showFigure=True, savePlot=True)
