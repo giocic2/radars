@@ -3,6 +3,9 @@ import itertools
 import re
 import os
 import easygui
+import sys
+sys.path.insert(1, "..")
+sys.path.insert(1, ".")
 from custom_modules.plots_readytouse import plot_paper_format
 
 def txt_extract(file_name):

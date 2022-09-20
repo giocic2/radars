@@ -22,9 +22,9 @@
     "raspberry-pi-zero":{
         "raw-data":true,
         "show-figure":false,
-        "save-plots":true,
+        "save-plot":true,
         "png-plot":true,
-        "pdf-plot":false,
+        "pdf-plot":true,
         "realtime-measurements":true,
         "target-threshold-dBV":-90.0,
         "directions":3

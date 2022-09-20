@@ -59,6 +59,10 @@ def main():
 
     # Raspberry Pi Zero settings
     RAW_DATA = settings["raspberry-pi-zero"]["raw-data"] # Boolean. Data stored in *.csv files.
+    SHOW_FIGURE = settings["raspberry-pi-zero"]["show-figure"] # Boolean. Disable if running on Raspberry Pi Zero without GUI.
+    SAVE_PLOTS = settings["raspberry-pi-zero"]["save-plots"] # Boolean. For each acquisition, the plots saved in PNG or PDF format.
+    PNG_PLOT = settings["raspberry-pi-zero"]["png-plot"] # Boolean.
+    PDF_PLOT = settings["raspberry-pi-zero"]["pdf-plot"] # Boolean. 
     REALTIME_MEAS = settings["raspberry-pi-zero"]["realtime-measurements"] # Boolean. Real-time measurements of Doppler velocity.
     TARGET_THRESHOLD = settings["raspberry-pi-zero"]["target-threshold-dBV"] # dBV. If FFT maximum is under this value, target not detected.
     DIRECTIONS = settings["raspberry-pi-zero"]["directions"]
