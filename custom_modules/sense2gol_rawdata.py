@@ -154,4 +154,6 @@ if __name__ == "__main__":
     Q_array_mV = Q_array * (ADC_RANGE_V / ADC_RANGE_BITS)
     complexSignal_mV = np.array(array_length)
     complexSignal_mV = np.add(I_array_mV, 1j*Q_array_mV)
-    FFT_dBV_peak, centroid_frequency, surface_velocity = FFT(complexSignal_mV, COMPLEX_FFT, array_length, SAMPLING_FREQUENCY, OFFSET_REMOVAL, HANNING_WINDOWING, ZERO_FORCING, SMOOTHING, TARGET_THRESHOLD, BANDWIDTH_THRESHOLD, antennaBeamDirection_DEG, tiltAngle_DEG)
+    FFT_dBV_peak, centroid_frequency, surface_velocity, FFT_dBV, freqAxis_Hz = FFT(complexSignal_mV, COMPLEX_FFT, array_length, SAMPLING_FREQUENCY, OFFSET_REMOVAL, HANNING_WINDOWING, ZERO_FORCING, SMOOTHING, TARGET_THRESHOLD, BANDWIDTH_THRESHOLD, antennaBeamDirection_DEG, tiltAngle_DEG)
+    # FFT plot
+    plot_paper_format(freqAxis_Hz, np.abs(FFT_dBV), "Frequency (Hz)", "FFT magnitude (dBV)", timestamp=None, showFigure=True, savePlot=False)
