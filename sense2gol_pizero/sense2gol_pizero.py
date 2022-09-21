@@ -67,7 +67,7 @@ def main():
     SAVE_PLOTS = settings["raspberry-pi-zero"]["save-plots"] # Boolean. For each acquisition, the plots saved in PNG or PDF format.
     PNG_PLOT = settings["raspberry-pi-zero"]["png-plot"] # Boolean.
     PDF_PLOT = settings["raspberry-pi-zero"]["pdf-plot"] # Boolean. 
-    PLOT_PATH = settings["raspberry-pi-zero"]["pdf-plot"]
+    PLOT_PATH = settings["raspberry-pi-zero"]["plot-path"]
     REALTIME_MEAS = settings["raspberry-pi-zero"]["realtime-measurements"] # Boolean. Real-time measurements of Doppler velocity.
     TARGET_THRESHOLD = settings["raspberry-pi-zero"]["target-threshold-dBV"] # dBV. If FFT maximum is under this value, target not detected.
     DIRECTIONS = settings["raspberry-pi-zero"]["directions"]
