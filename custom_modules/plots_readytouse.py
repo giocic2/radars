@@ -3,7 +3,7 @@ from datetime import datetime
 
 def plot_paper_format(x_axis_data, y_axis_data, x_axis_label='X axis data (adim.)', y_axis_label='Y axis data (adim.)', timestamp=None, showFigure=False, savePlot=True, pdf_plot=True, png_plot=True, plotPath=None):
     # Figure Width (inches)
-    figSizeXinches = 7
+    figSizeXinches = 3.5
     figSizeYinches = 3
     # Font size in Figures
     fontSize = 8

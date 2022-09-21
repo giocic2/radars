@@ -11,6 +11,7 @@ import sys
 sys.path.insert(1, ".")
 from custom_modules.signal_processing import FFT_parameters, FFT
 from custom_modules.sense2gol_rawdata import txt_extract, txt_generate
+from custom_modules.plots_readytouse import plot_paper_format
 import numpy as np
 import shutil
 import time
@@ -114,15 +115,22 @@ def main():
             completeFileName = txt_generate(S2GL, lines_to_be_read, raw_data_label)
             S2GL.close()
 
+            # Extract time-domain signals
             I_array, Q_array, array_length = txt_extract(completeFileName)
             I_array_mV = I_array * (ADC_RANGE_V / ADC_RANGE_BITS)
             Q_array_mV = Q_array * (ADC_RANGE_V / ADC_RANGE_BITS)
             complexSignal_mV = np.array(array_length)
             complexSignal_mV = np.add(I_array_mV, 1j*Q_array_mV)
             timeAxis_s = np.linspace(start=0, num=array_length, stop=array_length, endpoint=False) / SAMPLING_FREQUENCY
+            # Plot of time-domain signals
+            plot_paper_format(timeAxis_s, I_array_mV, "Time (s)", "IFI (ADC level)", timestamp=timestamp, showFigure=True, savePlot=False)
+            plot_paper_format(timeAxis_s, Q_array_mV, "Time (s)", "IFQ (ADC level)", timestamp=None, showFigure=True, savePlot=False)
             
+            # FFT evaluation
             assert FFT_initialized, "FFT not initialized. Use \'FFT_parameters()\' from FFT.py costum module."
-            FFT_dBV_peaks[episode,direction], centroid_frequencies[episode,direction], surface_velocities_table[episode,direction], _ = FFT(complexSignal_mV, COMPLEX_FFT, array_length, SAMPLING_FREQUENCY, OFFSET_REMOVAL, HANNING_WINDOWING, ZERO_FORCING, SMOOTHING, TARGET_THRESHOLD, BANDWIDTH_THRESHOLD, direction_DEG, tiltAngle_DEG)
+            FFT_dBV_peaks[episode,direction], centroid_frequencies[episode,direction], surface_velocities_table[episode,direction], FFT_dBV, freqAxis_Hz = FFT(complexSignal_mV, COMPLEX_FFT, array_length, SAMPLING_FREQUENCY, OFFSET_REMOVAL, HANNING_WINDOWING, ZERO_FORCING, SMOOTHING, TARGET_THRESHOLD, BANDWIDTH_THRESHOLD, direction_DEG, tiltAngle_DEG)
+            # Plot of FFT
+            plot_paper_format(freqAxis_Hz, FFT_dBV, "Frequency (Hz)", "FFT magnitude (dBV)", timestamp=timestamp, showFigure=False, savePlot=True, pdf_plot=False, png_plot=True, plotPath="./sense2gol_pizero/raw-samples/")
 
 if __name__ == "__main__":
     main()
