@@ -15,6 +15,7 @@ from custom_modules.plots_readytouse import plot_paper_format
 import numpy as np
 import shutil
 import time
+from scipy import stats
 
 
 def main():
@@ -66,6 +67,7 @@ def main():
     SAVE_PLOTS = settings["raspberry-pi-zero"]["save-plots"] # Boolean. For each acquisition, the plots saved in PNG or PDF format.
     PNG_PLOT = settings["raspberry-pi-zero"]["png-plot"] # Boolean.
     PDF_PLOT = settings["raspberry-pi-zero"]["pdf-plot"] # Boolean. 
+    PLOT_PATH = settings["raspberry-pi-zero"]["pdf-plot"]
     REALTIME_MEAS = settings["raspberry-pi-zero"]["realtime-measurements"] # Boolean. Real-time measurements of Doppler velocity.
     TARGET_THRESHOLD = settings["raspberry-pi-zero"]["target-threshold-dBV"] # dBV. If FFT maximum is under this value, target not detected.
     DIRECTIONS = settings["raspberry-pi-zero"]["directions"]
@@ -133,7 +135,57 @@ def main():
             assert FFT_initialized, "FFT not initialized. Use \'FFT_parameters()\' from FFT.py costum module."
             FFT_dBV_peaks[episode,direction], centroid_frequencies[episode,direction], surface_velocities_table[episode,direction], FFT_dBV, freqAxis_Hz = FFT(complexSignal_mV, COMPLEX_FFT, array_length, SAMPLING_FREQUENCY, OFFSET_REMOVAL, HANNING_WINDOWING, ZERO_FORCING, SMOOTHING, TARGET_THRESHOLD, BANDWIDTH_THRESHOLD, direction_DEG, tiltAngle_DEG)
             # Plot of FFT
-            plot_paper_format(freqAxis_Hz, FFT_dBV, "Frequency (Hz)", "FFT magnitude (dBV)", timestamp=timestamp, showFigure=False, savePlot=True, pdf_plot=False, png_plot=True, plotPath="./sense2gol_pizero/raw-samples/")
+            plot_paper_format(freqAxis_Hz, FFT_dBV, "Frequency (Hz)", "FFT magnitude (dBV)", timestamp, SHOW_FIGURE, SAVE_PLOTS, PDF_PLOT, PNG_PLOT, PLOT_PATH)
+
+            if REALTIME_MEAS == True:
+                print('Recap:')
+                print('[EP.,\tDEG,\tdBV,\tHz,\tm/s]')
+                for direction in antennaBeamDirections_DEG:
+                    print('[{:d},'.format(episode+1), end='\t')
+                    print('{:.1f},'.format(direction), end='\t')
+                    print('{:.1f},'.format(FFT_dBV_peaks[episode, direction]), end='\t')
+                    print('{:.1f},'.format(centroid_frequencies[episode, direction]), end='\t')
+                    print('{:.1f}]'.format(surface_velocities_table[episode, direction]))
+                if STATISTICAL_ANALYSIS == True and episode >= 2:
+                    print('Statistical analysis (episode {:d} of {:d}):'.format(episode+1, EPISODES))
+                    print('[angle, mean, std.dev., S.W. stat, S.W. p-value]')
+                    print('[DEG,\tm/s,\tm/s,\tS.W.,\tp-value]')
+                    for direction in antennaBeamDirections_DEG:
+                        shapiro_test = stats.shapiro(surface_velocities_table[:episode+1,direction])
+                        print('[{:.1f},'.format(direction), end='\t')
+                        print('{:.1f},'.format(np.mean(surface_velocities_table[:episode+1,direction])), end='\t')
+                        print('{:.1f},'.format(np.std(surface_velocities_table[:episode+1,direction], ddof=1)), end='\t')
+                        print('{:.1f},'.format(shapiro_test.statistic), end='\t')
+                        print('{:.3f}]'.format(shapiro_test.pvalue))
+    
+    # Generate report
+    print('Generating report...')
+    time.sleep(1)
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    reportFileName = timestamp + "_report.txt"
+    completeFileName = os.path.join(PLOT_PATH, reportFileName)
+    with open(completeFileName,'w') as file:
+        if REALTIME_MEAS == True:
+            file.write('### SURFACE VELOCITY TABLE ###\n')
+            file.write('[EP.,\tDEG,\tdBV,\tHz,\tm/s]\n')
+            for episode in range(EPISODES):
+                for direction in antennaBeamDirections_DEG:
+                    file.write('[{:d},\t'.format(episode+1))
+                    file.write('{:.1f},\t'.format(direction))
+                    file.write('{:.1f},\t'.format(FFT_dBV_peaks[episode,direction]))
+                    file.write('{:.1f},\t'.format(centroid_frequencies[episode,direction]))
+                    file.write('{:.1f}]\n'.format(surface_velocities_table[episode,direction]))
+            if STATISTICAL_ANALYSIS == True:
+                file.write('### STATISTICAL ANALYSIS (@ episode {:d} of {:d}) ###\n'.format(episode+1, EPISODES))
+                file.write('[scanning angle, mean value, std.dev., S.W. test statistic, S.W. test p-value]\n')
+                file.write('[DEG,\tm/s,\tm/s,\tS.W.,\tp-value]\n')
+                for direction in antennaBeamDirections_DEG:
+                    shapiro_test = stats.shapiro(surface_velocities_table[:episode+1,direction])
+                    file.write('[{:.1f},\t'.format(direction))
+                    file.write('{:.1f},\t'.format(np.mean(surface_velocities_table[:episode+1,direction])))
+                    file.write('{:.1f},\t'.format(np.std(surface_velocities_table[:episode+1,direction], ddof=1)))
+                    file.write('{:.1f},\t'.format(shapiro_test.statistic))
+                    file.write('{:.3f}]\n'.format(shapiro_test.pvalue))
 
 if __name__ == "__main__":
     main()
