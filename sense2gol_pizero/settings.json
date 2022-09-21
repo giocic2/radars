@@ -27,7 +27,7 @@
         "pdf-plot":false,
         "realtime-measurements":true,
         "target-threshold-dBV":-90.0,
-        "directions":2
+        "directions":1
     },
     "statistical-analysis":{
         "enabling":true,

@@ -69,7 +69,10 @@ def main():
     REALTIME_MEAS = settings["raspberry-pi-zero"]["realtime-measurements"] # Boolean. Real-time measurements of Doppler velocity.
     TARGET_THRESHOLD = settings["raspberry-pi-zero"]["target-threshold-dBV"] # dBV. If FFT maximum is under this value, target not detected.
     DIRECTIONS = settings["raspberry-pi-zero"]["directions"]
-    antennaBeamDirections_DEG = np.linspace(start=-15, stop=+15, num=DIRECTIONS, endpoint=True) # Degrees.
+    if DIRECTIONS == 1:
+        antennaBeamDirections_DEG = np.array([0])
+    else:
+        antennaBeamDirections_DEG = np.linspace(start=-15, stop=+15, num=DIRECTIONS, endpoint=True) # Degrees.
     tiltAngle_DEG = 45 # Degrees.
     tiltAngle_DEG_str = "tilt" + str("{0:.1f}".format(tiltAngle_DEG)) + "deg"
 
