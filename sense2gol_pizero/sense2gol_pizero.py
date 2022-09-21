@@ -186,6 +186,7 @@ def main():
                     file.write('{:.1f},\t'.format(np.std(surface_velocities_table[:episode+1,direction], ddof=1)))
                     file.write('{:.1f},\t'.format(shapiro_test.statistic))
                     file.write('{:.3f}]\n'.format(shapiro_test.pvalue))
+    print('Done.')
 
 if __name__ == "__main__":
     main()

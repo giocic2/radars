@@ -61,6 +61,7 @@ def centroid_estimation(inputArray, bandwidthThreshold, freqAxis_Hz, frequencyMi
 def evaluate_surface_velocity(centroid_frequency, antennaBeamDirection_DEG, tiltAngle_DEG):
     surface_velocity = (3e8 * centroid_frequency) / (2 * (24.125e9) * np.cos(np.deg2rad(antennaBeamDirection_DEG) * np.cos(np.deg2rad(tiltAngle_DEG))))
     print('Resulting surface velocity: {:.1f}'.format((3e8 * centroid_frequency) / (2 * (24.125e9) * np.cos(np.deg2rad(antennaBeamDirection_DEG) * np.cos(tiltAngle_DEG)))), ' m/s')
+    return surface_velocity
 
 def FFT(signal_mV, complexFFT: bool, totalSamples: int, samplingFrequency: float, offsetRemoval: bool, hanningWindowing: bool, zeroForcing: bool, smoothing: bool, targetThreshold: float, bandwidthThreshold: float, antennaBeamDirection_DEG: float, tiltAngle_DEG: float):
     if complexFFT == True: # FFT of complex signal
