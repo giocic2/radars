@@ -4,8 +4,8 @@ import re
 import os
 import easygui
 import sys
-sys.path.insert(1, "..")
 sys.path.insert(1, ".")
+sys.path.insert(1, "../..")
 from custom_modules.plots_readytouse import plot_paper_format
 import json
 from custom_modules.signal_processing import FFT_parameters, FFT
@@ -89,8 +89,12 @@ if __name__ == "__main__":
         txt_filename = easygui.fileopenbox(title = "Choose *.txt file to analyse...", default = "*.txt")
     print(txt_filename)
     # Read tilt angle and direction angle from filename
-    tiltAngle_DEG = float(re.search('__tilt(.+?)deg__', txt_filename))
-    antennaBeamDirection_DEG = float(re.search('__dir(.+?)deg', txt_filename))
+    tiltAngle_DEG = re.search('__tilt(.+?)deg__', txt_filename)
+    tiltAngle_DEG = float(tiltAngle_DEG.group(1))
+    print("Tilt angle: {:.1f} degree".format(tiltAngle_DEG))
+    antennaBeamDirection_DEG = re.search('__dir(.+?)deg', txt_filename)
+    antennaBeamDirection_DEG = float(antennaBeamDirection_DEG.group(1))
+    print("Beam direction: {:.1f} degree".format(antennaBeamDirection_DEG))
     # Open acquisition settings
     json_filename = None
     while json_filename == None:
