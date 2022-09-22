@@ -156,7 +156,7 @@ def main():
                     print('{:.1f},'.format(FFT_dBV_peaks[episode, direction]), end='\t')
                     print('{:.1f},'.format(centroid_frequencies[episode, direction]), end='\t')
                     print('{:.1f}]'.format(surface_velocities_table[episode, direction]))
-                if STATISTICAL_ANALYSIS == True:
+                if STATISTICAL_ANALYSIS == True and episode >= 2:
                     print('Statistical analysis (episode {:d} of {:d}):'.format(episode+1, EPISODES))
                     print('[angle, mean, std.dev., S.W. stat, S.W. p-value]')
                     print('[DEG,\tm/s,\tm/s,\tS.W.,\tp-value]')
