@@ -9,12 +9,11 @@ from datetime import datetime
 import os.path
 import sys
 
-from radars.custom_modules.servo_motor import define_PWM_pin, rotate_angle, rotate_servo_to_angle
+from custom_modules.servo_motor import define_PWM_pin, rotate_angle, rotate_servo_to_angle
 sys.path.insert(1, ".")
 from custom_modules.signal_processing import FFT_parameters, FFT
 from custom_modules.sense2gol_rawdata import txt_extract, txt_generate
 from custom_modules.plots_readytouse import plot_paper_format
-from custom_modules.plots_readytouse import *
 import numpy as np
 import shutil
 import time
