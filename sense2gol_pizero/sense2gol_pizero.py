@@ -132,8 +132,8 @@ def main():
 
             # Extract time-domain signals
             I_array, Q_array, array_length = txt_extract(completeFileName)
-            I_array_mV = I_array * (ADC_RANGE_V / ADC_RANGE_BITS)
-            Q_array_mV = Q_array * (ADC_RANGE_V / ADC_RANGE_BITS)
+            I_array_mV = I_array * (ADC_RANGE_V / ADC_RANGE_BITS) * 1000 # mV
+            Q_array_mV = Q_array * (ADC_RANGE_V / ADC_RANGE_BITS) * 1000 # mV
             complexSignal_mV = np.array(array_length)
             complexSignal_mV = np.add(I_array_mV, 1j*Q_array_mV)
             timeAxis_s = np.linspace(start=0, num=array_length, stop=array_length, endpoint=False) / SAMPLING_FREQUENCY
