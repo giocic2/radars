@@ -156,11 +156,11 @@ def main():
                     print('{:.1f},'.format(FFT_dBV_peaks[episode, direction]), end='\t')
                     print('{:.1f},'.format(centroid_frequencies[episode, direction]), end='\t')
                     print('{:.1f}]'.format(surface_velocities_table[episode, direction]))
-                if STATISTICAL_ANALYSIS == True and episode >= 2:
+                if STATISTICAL_ANALYSIS == True:
                     print('Statistical analysis (episode {:d} of {:d}):'.format(episode+1, EPISODES))
                     print('[angle, mean, std.dev., S.W. stat, S.W. p-value]')
                     print('[DEG,\tm/s,\tm/s,\tS.W.,\tp-value]')
-                    for direction in antennaBeamDirections_DEG:
+                    for direction in range(DIRECTIONS):
                         shapiro_test = stats.shapiro(surface_velocities_table[:episode+1,direction])
                         print('[{:.1f},'.format(direction), end='\t')
                         print('{:.1f},'.format(np.mean(surface_velocities_table[:episode+1,direction])), end='\t')
@@ -179,9 +179,9 @@ def main():
             file.write('### SURFACE VELOCITY TABLE ###\n')
             file.write('[EP.,\tDEG,\tdBV,\tHz,\t\tm/s]\n')
             for episode in range(EPISODES):
-                for direction in antennaBeamDirections_DEG:
+                for direction in range(DIRECTIONS):
                     file.write('[{:d},\t\t'.format(episode+1))
-                    file.write('{:.1f},\t'.format(direction))
+                    file.write('{:.1f},\t'.format(antennaBeamDirections_DEG[direction]))
                     file.write('{:.1f},\t'.format(FFT_dBV_peaks[episode,direction]))
                     file.write('{:.1f},\t'.format(centroid_frequencies[episode,direction]))
                     file.write('{:.1f}]\n'.format(surface_velocities_table[episode,direction]))
@@ -189,9 +189,9 @@ def main():
                 file.write('### STATISTICAL ANALYSIS (@ episode {:d} of {:d}) ###\n'.format(episode+1, EPISODES))
                 file.write('[scanning angle, mean value, std.dev., S.W. test statistic, S.W. test p-value]\n')
                 file.write('[DEG,\tm/s,\tm/s,\tS.W.,\tp-value]\n')
-                for direction in antennaBeamDirections_DEG:
-                    shapiro_test = stats.shapiro(surface_velocities_table[episode+1,direction])
-                    file.write('[{:.1f},\t'.format(direction))
+                for direction in range(DIRECTIONS):
+                    shapiro_test = stats.shapiro(surface_velocities_table[:episode+1,direction])
+                    file.write('[{:.1f},\t'.format(antennaBeamDirections_DEG[direction]))
                     file.write('{:.1f},\t'.format(np.mean(surface_velocities_table[:episode+1,direction])))
                     file.write('{:.1f},\t'.format(np.std(surface_velocities_table[:episode+1,direction], ddof=1)))
                     file.write('{:.1f},\t'.format(shapiro_test.statistic))
