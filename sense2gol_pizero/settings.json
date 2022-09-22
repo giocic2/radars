@@ -1,4 +1,5 @@
 {
+    "comment": "Be aware that not all the settings suggested here could be modified as you like. Read comments on sense2gol_pizero.py and Sense2GoL manuals for more information.",
     "sense2gol":{
         "number-of-frames":1,
         "samples-per-frame":128,
@@ -20,6 +21,8 @@
         "offset-removal":true
     },
     "raspberry-pi-zero":{
+        "pwm-board-pin":7,
+        "pwm-frequency":50,
         "raw-data":true,
         "show-figure":false,
         "save-plots":true,
@@ -28,6 +31,8 @@
         "plot-path":"./sense2gol_pizero/raw-samples/",
         "realtime-measurements":true,
         "target-threshold-dBV":-90.0,
+        "min-beam-angle":-90,
+        "max-beam-angle":90,
         "directions":1
     },
     "statistical-analysis":{

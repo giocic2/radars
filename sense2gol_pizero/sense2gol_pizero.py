@@ -8,10 +8,13 @@ import serial
 from datetime import datetime
 import os.path
 import sys
+
+from radars.custom_modules.servo_motor import define_PWM_pin, rotate_angle, rotate_servo_to_angle
 sys.path.insert(1, ".")
 from custom_modules.signal_processing import FFT_parameters, FFT
 from custom_modules.sense2gol_rawdata import txt_extract, txt_generate
 from custom_modules.plots_readytouse import plot_paper_format
+from custom_modules.plots_readytouse import *
 import numpy as np
 import shutil
 import time
@@ -62,7 +65,9 @@ def main():
     OFFSET_REMOVAL = settings["signal-processing"]["offset-removal"] # Boolean.
 
     # Raspberry Pi Zero settings
-    RAW_DATA = settings["raspberry-pi-zero"]["raw-data"] # Boolean. Data stored in *.csv files.
+    PWM_PIN = settings["raspberry-pi-zero"]["pwm-board-pin"] # Board pin number.
+    PWM_FREQUENCY = settings["raspberry-pi-zero"]["pwm-frequency"] # 50 Hz default.
+    RAW_DATA = settings["raspberry-pi-zero"]["raw-data"] # Boolean. Data stored in *.txt files.
     SHOW_FIGURE = settings["raspberry-pi-zero"]["show-figure"] # Boolean. Disable if running on Raspberry Pi Zero without GUI.
     SAVE_PLOTS = settings["raspberry-pi-zero"]["save-plots"] # Boolean. For each acquisition, the plots saved in PNG or PDF format.
     PNG_PLOT = settings["raspberry-pi-zero"]["png-plot"] # Boolean.
@@ -70,11 +75,13 @@ def main():
     PLOT_PATH = settings["raspberry-pi-zero"]["plot-path"]
     REALTIME_MEAS = settings["raspberry-pi-zero"]["realtime-measurements"] # Boolean. Real-time measurements of Doppler velocity.
     TARGET_THRESHOLD = settings["raspberry-pi-zero"]["target-threshold-dBV"] # dBV. If FFT maximum is under this value, target not detected.
+    MIN_BEAM_ANGLE = settings["raspberry-pi-zero"]["directions"] # Degree. Angle between broadside direction and beam direction.
+    MIN_BEAM_ANGLE = settings["raspberry-pi-zero"]["directions"] # Degree. Angle between broadside direction and beam direction.
     DIRECTIONS = settings["raspberry-pi-zero"]["directions"]
     if DIRECTIONS == 1: # Only broadside direction
         antennaBeamDirections_DEG = np.array([0])
     else:
-        antennaBeamDirections_DEG = np.linspace(start=-15, stop=+15, num=DIRECTIONS, endpoint=True) # Degrees.
+        antennaBeamDirections_DEG = np.linspace(start=MIN_BEAM_ANGLE, stop=MIN_BEAM_ANGLE, num=DIRECTIONS, endpoint=True) # Degrees.
     tiltAngle_DEG = 45 # Degrees.
     tiltAngle_DEG_str = "tilt" + str("{0:.1f}".format(tiltAngle_DEG)) + "deg"
 
@@ -89,6 +96,9 @@ def main():
     centroid_frequencies = np.zeros((EPISODES, DIRECTIONS))
     surface_velocities_table = np.zeros((EPISODES, DIRECTIONS))
 
+    # Initiate servo motor
+    servo_motor = define_PWM_pin(PWM_PIN, PWM_FREQUENCY)
+
     for episode in range(EPISODES):
         print("*****************")
         print("EPISODE {:d} OF {:d}:".format(episode+1, EPISODES))
@@ -97,6 +107,7 @@ def main():
             print("Scanning direction " + str(direction+1) + " of " + str(DIRECTIONS) + "...")
             direction_DEG = antennaBeamDirections_DEG[direction]
             direction_DEG_str = "dir" + str("{0:.1f}".format(direction_DEG)) + "deg"
+            rotate_servo_to_angle(servo_motor, direction_DEG)
             # Boolean variable that will represent 
             # whether or not the Sense2GoL is connected
             connected = False
