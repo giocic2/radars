@@ -6,7 +6,8 @@ from doctest import ELLIPSIS_MARKER
 import json
 import serial
 from datetime import datetime
-import os.path
+import glob
+import os
 import sys
 
 sys.path.insert(1, ".")
@@ -28,10 +29,9 @@ def main():
     f.close()
 
     # Save current *.json
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
     json_filename = "./sense2gol_pizero/raw-samples/" + timestamp + ".json"
     shutil.copyfile("./sense2gol_pizero/settings.json",json_filename)
-    time.sleep(1)
 
     # Sense2GoL settings
     SAMPLING_FREQUENCY = 3e3 # Hz
@@ -125,7 +125,7 @@ def main():
             while not connected:
                 serin = S2GL.read()
                 connected = True
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
             raw_data_label = timestamp + "__" + tiltAngle_DEG_str + "__" + direction_DEG_str
             completeFileName = txt_generate(S2GL, lines_to_be_read, raw_data_label)
             S2GL.close()
@@ -138,14 +138,14 @@ def main():
             complexSignal_mV = np.add(I_array_mV, 1j*Q_array_mV)
             timeAxis_s = np.linspace(start=0, num=array_length, stop=array_length, endpoint=False) / SAMPLING_FREQUENCY
             # Plot of time-domain signals
-            plot_paper_format(timeAxis_s, I_array_mV, "Time (s)", "IFI (ADC level)", timestamp=timestamp, showFigure=True, savePlot=False)
-            plot_paper_format(timeAxis_s, Q_array_mV, "Time (s)", "IFQ (ADC level)", timestamp=None, showFigure=True, savePlot=False)
+            plot_paper_format(timeAxis_s, I_array_mV, "Time (s)", "IFI (ADC level)", SHOW_FIGURE, SAVE_PLOTS, PDF_PLOT, PNG_PLOT, PLOT_PATH)
+            plot_paper_format(timeAxis_s, Q_array_mV, "Time (s)", "IFQ (ADC level)", SHOW_FIGURE, SAVE_PLOTS, PDF_PLOT, PNG_PLOT, PLOT_PATH)
             
             # FFT evaluation
             assert FFT_initialized, "FFT not initialized. Use \'FFT_parameters()\' from FFT.py costum module."
             FFT_dBV_peaks[episode,direction], centroid_frequencies[episode,direction], surface_velocities_table[episode,direction], FFT_dBV, freqAxis_Hz = FFT(complexSignal_mV, COMPLEX_FFT, array_length, SAMPLING_FREQUENCY, OFFSET_REMOVAL, HANNING_WINDOWING, ZERO_FORCING, SMOOTHING, TARGET_THRESHOLD, BANDWIDTH_THRESHOLD, direction_DEG, tiltAngle_DEG)
             # Plot of FFT
-            plot_paper_format(freqAxis_Hz, FFT_dBV, "Frequency (Hz)", "FFT magnitude (dBV)", timestamp, SHOW_FIGURE, SAVE_PLOTS, PDF_PLOT, PNG_PLOT, PLOT_PATH)
+            plot_paper_format(freqAxis_Hz, FFT_dBV, "Frequency (Hz)", "FFT magnitude (dBV)", SHOW_FIGURE, SAVE_PLOTS, PDF_PLOT, PNG_PLOT, PLOT_PATH)
 
             if REALTIME_MEAS == True:
                 print('Recap:')
@@ -171,7 +171,7 @@ def main():
     # Generate report
     print('Generating report...')
     time.sleep(1)
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
     reportFileName = timestamp + "_report.txt"
     completeFileName = os.path.join(PLOT_PATH, reportFileName)
     with open(completeFileName,'w') as file:
@@ -198,6 +198,11 @@ def main():
                     file.write('{:.3f}]\n'.format(shapiro_test.pvalue))
     print('Done.')
     shut_down_servo(servo_motor)
+    # Delete raw data if not needed
+    if not RAW_DATA:
+        raw_samples_files = glob.glob('sense2gol_pizero/raw-samples/*.txt')
+        for txtfile in raw_samples_files:
+            os.remove(txtfile)
 
 if __name__ == "__main__":
     main()
