@@ -152,7 +152,7 @@ def main():
                 print('[EP.,\tDEG,\tdBV,\tHz,\tm/s]')
                 for direction in range(DIRECTIONS):
                     print('[{:d},'.format(episode+1), end='\t')
-                    print('{:.1f},'.format(direction), end='\t')
+                    print('{:.1f},'.format(antennaBeamDirections_DEG[direction]), end='\t')
                     print('{:.1f},'.format(FFT_dBV_peaks[episode, direction]), end='\t')
                     print('{:.1f},'.format(centroid_frequencies[episode, direction]), end='\t')
                     print('{:.1f}]'.format(surface_velocities_table[episode, direction]))
