@@ -150,7 +150,7 @@ def main():
             if REALTIME_MEAS == True:
                 print('Recap:')
                 print('[EP.,\tDEG,\tdBV,\tHz,\tm/s]')
-                for direction in antennaBeamDirections_DEG:
+                for direction in range(DIRECTIONS):
                     print('[{:d},'.format(episode+1), end='\t')
                     print('{:.1f},'.format(direction), end='\t')
                     print('{:.1f},'.format(FFT_dBV_peaks[episode, direction]), end='\t')
