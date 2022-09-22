@@ -162,7 +162,7 @@ def main():
                     print('[DEG,\tm/s,\tm/s,\tS.W.,\tp-value]')
                     for direction in range(DIRECTIONS):
                         shapiro_test = stats.shapiro(surface_velocities_table[:episode+1,direction])
-                        print('[{:.1f},'.format(direction), end='\t')
+                        print('[{:.1f},'.format(antennaBeamDirections_DEG[direction]), end='\t')
                         print('{:.1f},'.format(np.mean(surface_velocities_table[:episode+1,direction])), end='\t')
                         print('{:.1f},'.format(np.std(surface_velocities_table[:episode+1,direction], ddof=1)), end='\t')
                         print('{:.1f},'.format(shapiro_test.statistic), end='\t')
