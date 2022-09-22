@@ -33,7 +33,7 @@
         "target-threshold-dBV":-90.0,
         "min-beam-angle":-90,
         "max-beam-angle":90,
-        "directions":3
+        "directions":5
     },
     "statistical-analysis":{
         "enabling":true,
