@@ -177,10 +177,10 @@ def main():
     with open(completeFileName,'w') as file:
         if REALTIME_MEAS == True:
             file.write('### SURFACE VELOCITY TABLE ###\n')
-            file.write('[EP.,\tDEG,\tdBV,\tHz,\t\tm/s]\n')
+            file.write('[EP.,\tDEG,\tdBV,\tHz,\tm/s]\n')
             for episode in range(EPISODES):
                 for direction in range(DIRECTIONS):
-                    file.write('[{:d},\t\t'.format(episode+1))
+                    file.write('[{:d},\t'.format(episode+1))
                     file.write('{:.1f},\t'.format(antennaBeamDirections_DEG[direction]))
                     file.write('{:.1f},\t'.format(FFT_dBV_peaks[episode,direction]))
                     file.write('{:.1f},\t'.format(centroid_frequencies[episode,direction]))
