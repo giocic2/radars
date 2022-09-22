@@ -74,13 +74,13 @@ def main():
     PLOT_PATH = settings["raspberry-pi-zero"]["plot-path"]
     REALTIME_MEAS = settings["raspberry-pi-zero"]["realtime-measurements"] # Boolean. Real-time measurements of Doppler velocity.
     TARGET_THRESHOLD = settings["raspberry-pi-zero"]["target-threshold-dBV"] # dBV. If FFT maximum is under this value, target not detected.
-    MIN_BEAM_ANGLE = settings["raspberry-pi-zero"]["directions"] # Degree. Angle between broadside direction and beam direction.
-    MIN_BEAM_ANGLE = settings["raspberry-pi-zero"]["directions"] # Degree. Angle between broadside direction and beam direction.
+    MIN_BEAM_ANGLE = settings["raspberry-pi-zero"]["min-beam-angle"] # Degree. Angle between broadside direction and beam direction.
+    MAX_BEAM_ANGLE = settings["raspberry-pi-zero"]["max-beam-angle"] # Degree. Angle between broadside direction and beam direction.
     DIRECTIONS = settings["raspberry-pi-zero"]["directions"]
     if DIRECTIONS == 1: # Only broadside direction
         antennaBeamDirections_DEG = np.array([0])
     else:
-        antennaBeamDirections_DEG = np.linspace(start=MIN_BEAM_ANGLE, stop=MIN_BEAM_ANGLE, num=DIRECTIONS, endpoint=True) # Degrees.
+        antennaBeamDirections_DEG = np.linspace(start=MIN_BEAM_ANGLE, stop=MAX_BEAM_ANGLE, num=DIRECTIONS, endpoint=True) # Degrees.
     tiltAngle_DEG = 45 # Degrees.
     tiltAngle_DEG_str = "tilt" + str("{0:.1f}".format(tiltAngle_DEG)) + "deg"
 
