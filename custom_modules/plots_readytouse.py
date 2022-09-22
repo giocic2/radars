@@ -37,6 +37,8 @@ def plot_paper_format(x_axis_data, y_axis_data, x_axis_label='X axis data (adim.
         plt.savefig(plotPathPDF)
     if showFigure:
         plt.show()
+    # Clear figure
+    plt.clf()
 
 if __name__ == "__main__":
     print("Standalone script not yet delevoped.")
