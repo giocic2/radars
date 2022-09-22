@@ -9,7 +9,7 @@ from datetime import datetime
 import os.path
 import sys
 
-from custom_modules.servo_motor import define_PWM_pin, rotate_servo_to_angle
+from custom_modules.servo_motor import define_PWM_pin, rotate_servo_to_angle, shut_down_servo
 sys.path.insert(1, ".")
 from custom_modules.signal_processing import FFT_parameters, FFT
 from custom_modules.sense2gol_rawdata import txt_extract, txt_generate
@@ -197,6 +197,7 @@ def main():
                     file.write('{:.1f},\t'.format(shapiro_test.statistic))
                     file.write('{:.3f}]\n'.format(shapiro_test.pvalue))
     print('Done.')
+    shut_down_servo(servo_motor)
 
 if __name__ == "__main__":
     main()
