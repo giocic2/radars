@@ -190,7 +190,7 @@ def main():
                 file.write('[scanning angle, mean value, std.dev., S.W. test statistic, S.W. test p-value]\n')
                 file.write('[DEG,\tm/s,\tm/s,\tS.W.,\tp-value]\n')
                 for direction in antennaBeamDirections_DEG:
-                    shapiro_test = stats.shapiro(surface_velocities_table[:episode+1,direction])
+                    shapiro_test = stats.shapiro(surface_velocities_table[episode+1,direction])
                     file.write('[{:.1f},\t'.format(direction))
                     file.write('{:.1f},\t'.format(np.mean(surface_velocities_table[:episode+1,direction])))
                     file.write('{:.1f},\t'.format(np.std(surface_velocities_table[:episode+1,direction], ddof=1)))
