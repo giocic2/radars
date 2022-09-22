@@ -1,3 +1,5 @@
 sense2gol_pizero/raw-samples/*.txt
 sense2gol_pizero/raw-samples/*.json
+sense2gol_pizero/raw-samples/*.png
+sense2gol_pizero/raw-samples/*.pdf
 custom_modules/__pycache__/
