@@ -22,7 +22,7 @@ def rotate_servo_to_angle(servoMotor, beamAngle: float):
 
 def shut_down_servo(servoMotor):
     servoMotor.stop()
-    GPIO.cleanup()
+    # GPIO.cleanup() # Execute only once servo motor has been disconnected.
 
 if __name__ == "__main__":
     print("Standalone script not yet developed.")
