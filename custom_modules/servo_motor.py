@@ -14,7 +14,7 @@ def rotate_servo_to_angle(servoMotor, beamAngle: float):
     MAX_ANGLE_DUTY_CYCLE = 2
     MIN_ANGLE = -90
     MIN_ANGLE_DUTY_CYCLE = 12
-    dutyCycle = (beamAngle - MIN_ANGLE) / (MAX_ANGLE - MIN_ANGLE) * (MIN_ANGLE_DUTY_CYCLE - MAX_ANGLE_DUTY_CYCLE) + MAX_ANGLE_DUTY_CYCLE
+    dutyCycle = (beamAngle + MIN_ANGLE) / (MAX_ANGLE - MIN_ANGLE) * (MIN_ANGLE_DUTY_CYCLE - MAX_ANGLE_DUTY_CYCLE) + MAX_ANGLE_DUTY_CYCLE
     servoMotor.ChangeDutyCycle(dutyCycle)
     time.sleep(0.5)
     servoMotor.ChangeDutyCycle(0) # To avoid servo jitter.
