@@ -138,8 +138,8 @@ def main():
             complexSignal_mV = np.add(I_array_mV, 1j*Q_array_mV)
             timeAxis_s = np.linspace(start=0, num=array_length, stop=array_length, endpoint=False) / SAMPLING_FREQUENCY
             # Plot of time-domain signals
-            plot_paper_format(timeAxis_s, I_array_mV, "Time (s)", "IFI (ADC level)", SHOW_FIGURE, SAVE_PLOTS, PDF_PLOT, PNG_PLOT, PLOT_PATH)
-            plot_paper_format(timeAxis_s, Q_array_mV, "Time (s)", "IFQ (ADC level)", SHOW_FIGURE, SAVE_PLOTS, PDF_PLOT, PNG_PLOT, PLOT_PATH)
+            plot_paper_format(timeAxis_s, I_array_mV, "Time (s)", "IFI voltage (V)", SHOW_FIGURE, SAVE_PLOTS, PDF_PLOT, PNG_PLOT, PLOT_PATH)
+            plot_paper_format(timeAxis_s, Q_array_mV, "Time (s)", "IFQ voltage (V)", SHOW_FIGURE, SAVE_PLOTS, PDF_PLOT, PNG_PLOT, PLOT_PATH)
             
             # FFT evaluation
             assert FFT_initialized, "FFT not initialized. Use \'FFT_parameters()\' from FFT.py costum module."
