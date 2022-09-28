@@ -28,7 +28,7 @@
         "save-plots":true,
         "png-plot":true,
         "pdf-plot":false,
-        "plot-path":"sense2gol_pizero/raw-samples/",
+        "plot-path":"sense2gol_pizero/raw_samples/",
         "realtime-measurements":true,
         "target-threshold-dBV":-90.0,
         "min-beam-angle":-90,

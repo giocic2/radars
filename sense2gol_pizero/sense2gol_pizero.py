@@ -30,7 +30,7 @@ def main():
 
     # Save current *.json
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
-    json_filename = "./sense2gol_pizero/raw-samples/" + timestamp + ".json"
+    json_filename = "./sense2gol_pizero/raw_samples/" + timestamp + ".json"
     shutil.copyfile("./sense2gol_pizero/settings.json",json_filename)
 
     # Sense2GoL settings
@@ -200,7 +200,7 @@ def main():
     shut_down_servo(servo_motor)
     # Delete raw data if not needed
     if not RAW_DATA:
-        raw_samples_files = glob.glob('sense2gol_pizero/raw-samples/*.txt')
+        raw_samples_files = glob.glob('sense2gol_pizero/raw_samples/*.txt')
         for txtfile in raw_samples_files:
             os.remove(txtfile)
 
