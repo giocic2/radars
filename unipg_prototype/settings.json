@@ -1,0 +1,42 @@
+{
+    "comment": "Be aware that not all the settings suggested here could be modified as you like. Read comments on sense2gol_pizero.py and Sense2GoL manuals for more information.",
+    "sense2gol":{
+        "number-of-frames":1,
+        "samples-per-frame":128,
+        "overhead":100,
+        "adc-resolution-bits":12,
+        "adc-range-v":3.3
+    },
+    "signal-processing":{
+        "complex-fft":true,
+        "fft-resolution-Hz":1,
+        "fft-smoothing":true,
+        "smoothing-window-Hz":10,
+        "bandwidth-threshold-dB":6,
+        "hanning-windowing":true,
+        "zero-forcing":true,
+        "frequency-min-Hz":-1000,
+        "frequency-max-Hz":1000,
+        "print-fft-info":true,
+        "offset-removal":true
+    },
+    "raspberry-3b-plus":{
+        "pwm-board-pin":7,
+        "pwm-frequency":50,
+        "raw-data":true,
+        "show-figure":false,
+        "save-plots":true,
+        "png-plot":true,
+        "pdf-plot":false,
+        "plot-path":"unipg_prototype/raw_samples/",
+        "realtime-measurements":true,
+        "target-threshold-dBV":-90.0,
+        "min-beam-angle":-90,
+        "max-beam-angle":90,
+        "directions":5
+    },
+    "statistical-analysis":{
+        "enabling":true,
+        "episodes-number":3
+    }
+}
