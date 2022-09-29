@@ -3,7 +3,9 @@
     "mounting-support":{
         "pivot-height-m":0.56,
         "water-vertical-distance-m":0,
-        "rx-antenna-offset-m":0.12,
+        "rx-antenna-offset-m":0.12
+    },
+    "antennas":{
         "min-scan-angle-deg":-15,
         "max-scan-angle-deg":15
     },
@@ -13,8 +15,10 @@
     "picoscope":{
         "acquisition-time-s":0.5,
         "sampling-frequency-Hz":10e3,
-        "channel-a-range-v":0.5,
-        "channel-b-range-v":0.5
+        "channels-info":"Channel A is IFI, Channel B is IFQ. Possible values for channel range: 20e-3, 50e-3, 100e-3, 200e-3, 500e-3, 1, 2, 5, 10, 20.",
+        "channel-a-range-v":500e-3,
+        "channel-b-range-v":500e-3,
+        "trigger-delay-s":1
     },
     "signal-processing":{
         "complex-fft":true,

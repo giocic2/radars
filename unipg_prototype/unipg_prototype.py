@@ -16,24 +16,27 @@ def main():
     json_filename = "./unipg_prototype/raw_samples/" + timestamp + ".json"
     shutil.copyfile("./unipg_prototype/settings.json", json_filename)
 
-    # Mounting support and antennas settings
+    # Mounting support settings
     PIVOT_HEIGHT = settings["mounting-support"]["pivot-height-m"] # m. Height of the pivot of the tiltable plane.
     WATER_VERTICAL_DISTANCE = settings["mounting-support"]["water-vertical-distance-m"] # m. Vertical distance from water level and radar mounting support.
     RX_ANTENNA_OFFSET = settings["mounting-support"]["rx-antenna-offset-m"] # m. Distance between RX antenna and pivot.
-    MIN_SCAN_ANGLE = settings["mounting-support"]["min-scan-angle-deg"] # Degrees. Minimum horizontal beam angle, where 0° is the broadside direction.
-    MAX_SCAN_ANGLE = settings["mounting-support"]["max-scan-angle-deg"] # Degrees. Maximum horizontal beam angle, where 0° is the broadside direction.
+
+    # Antenna properties
+    MIN_SCAN_ANGLE = settings["antennas"]["min-scan-angle-deg"] # Degrees. Minimum horizontal beam angle, where 0° is the broadside direction.
+    MAX_SCAN_ANGLE = settings["antennas"]["max-scan-angle-deg"] # Degrees. Maximum horizontal beam angle, where 0° is the broadside direction.
 
     # PicoScope 2206B settings
     ACQUISITION_TIME = float(settings["picoscope"]["acquisition-time-s"]) # s
-    SAMPLING_FREQUENCY = float(settings["picoscope"]["sampling-frequency-Hz"]) # Hz
-    SAMPLING_FREQUENCY = picoscope.conform_sampling_frequency(SAMPLING_FREQUENCY)
+    SAMPLING_FREQUENCY = picoscope.conform_sampling_frequency(float(settings["picoscope"]["sampling-frequency-Hz"])) # Hz
     print('Sampling frequency: {:,}'.format(SAMPLING_FREQUENCY) + ' Hz')
     time_resolution = 1/SAMPLING_FREQUENCY # s
     print('Time resolution: {:,}'.format(time_resolution) + ' s')
     totalSamples = round(ACQUISITION_TIME/time_resolution)
     print('Number of total samples (for each channel): {:,}'.format(totalSamples))
-    CH_A_RANGE_V = settings["picoscope"]["channel-a-range-v"] # Volts.
-    CH_B_RANGE_V = settings["picoscope"]["channel-b-range-v"] # Volts.
+    CH_A_RANGE_V = picoscope.get_channel_range_id(settings["picoscope"]["channel-a-range-v"]) # Volts.
+    CH_B_RANGE_V = picoscope.get_channel_range_id(settings["picoscope"]["channel-b-range-v"]) # Volts.
+    TRIGGER_DELAY_SEC = float(settings["picoscope"]["trigger-delay-s"]) # s
+    triggerDelay_samples = int(SAMPLING_FREQUENCY * TRIGGER_DELAY_SEC) # trigger delay in number of samples
 
     # Signal processing settings
     COMPLEX_FFT = settings["signal-processing"]["complex-fft"] # Boolean. If True, the FFT of a complex signal (two-sided spectrum) is computed.
