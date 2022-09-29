@@ -1,18 +1,20 @@
 {
     "comment": "Be aware that not all the settings suggested here could be modified as you like. Read comments on sense2gol_pizero.py and Sense2GoL manuals for more information.",
     "mounting-support":{
-        "number-of-frames":1,
-        "samples-per-frame":128,
-        "overhead":100,
-        "adc-resolution-bits":12,
-        "adc-range-v":3.3
+        "pivot-height-m":0.56,
+        "water-vertical-distance-m":0,
+        "rx-antenna-offset-m":0.12,
+        "min-scan-angle-deg":-15,
+        "max-scan-angle-deg":15
+    },
+    "accelerometer":{
+        "averages":20
     },
     "picoscope":{
-        "number-of-frames":1,
-        "samples-per-frame":128,
-        "overhead":100,
-        "adc-resolution-bits":12,
-        "adc-range-v":3.3
+        "acquisition-time-s":0.5,
+        "sampling-frequency-Hz":10e3,
+        "channel-a-range-v":0.5,
+        "channel-b-range-v":0.5
     },
     "signal-processing":{
         "complex-fft":true,
