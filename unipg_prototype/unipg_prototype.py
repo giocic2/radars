@@ -11,8 +11,8 @@ def main():
 
     # Save current *.json
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
-    json_filename = "./sense2gol_pizero/raw_samples/" + timestamp + ".json"
-    shutil.copyfile("./sense2gol_pizero/settings.json",json_filename)
+    json_filename = "./unipg_prototype/raw_samples/" + timestamp + ".json"
+    shutil.copyfile("./unipg_prototype/settings.json", json_filename)
 
 if __name__ == "__main__":
     main()

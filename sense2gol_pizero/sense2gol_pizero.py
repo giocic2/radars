@@ -34,7 +34,7 @@ def main():
     shutil.copyfile("./sense2gol_pizero/settings.json",json_filename)
 
     # Sense2GoL settings
-    SAMPLING_FREQUENCY = 3e3 # Hz
+    SAMPLING_FREQUENCY = float(settings["sense2gol"]["sampling-frequency-Hz"]) # Hz
     print('Sampling frequency: {:,}'.format(SAMPLING_FREQUENCY) + ' Hz')
     time_resolution = 1/SAMPLING_FREQUENCY # s
     print('Time resolution: {:,}'.format(time_resolution) + ' s')

@@ -1,6 +1,7 @@
 {
     "comment": "Be aware that not all the settings suggested here could be modified as you like. Read comments on sense2gol_pizero.py and Sense2GoL manuals for more information.",
     "sense2gol":{
+        "sampling-frequency-Hz":3300,
         "number-of-frames":1,
         "samples-per-frame":128,
         "overhead":100,
