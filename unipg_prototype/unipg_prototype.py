@@ -22,8 +22,10 @@ def main():
     RX_ANTENNA_OFFSET = settings["mounting-support"]["rx-antenna-offset-m"] # m. Distance between RX antenna and pivot.
 
     # Antenna properties
-    MIN_SCAN_ANGLE = settings["antennas"]["min-scan-angle-deg"] # Degrees. Minimum horizontal beam angle, where 0° is the broadside direction.
-    MAX_SCAN_ANGLE = settings["antennas"]["max-scan-angle-deg"] # Degrees. Maximum horizontal beam angle, where 0° is the broadside direction.
+    MIN_SQUINT_ANGLE = settings["antennas"]["min-squint-angle-deg"] # Degrees. Minimum horizontal beam angle, where 0° is the broadside direction.
+    FREQ_MIN_SQUINT = float(settings["antennas"]["freq-min-squint-hz"]) # Hz. TRX frequency corresponding to beam directed toward MIN_SQUINT_ANGLE
+    MAX_SQUINT_ANGLE = settings["antennas"]["max-squint-angle-deg"] # Degrees. Maximum horizontal beam angle, where 0° is the broadside direction.
+    FREQ_MAX_SQUINT = float(settings["antennas"]["freq-max-squint-hz"]) # Hz. TRX frequency corresponding to beam directed toward MAX_SQUINT_ANGLE
 
     # PicoScope 2206B settings
     ACQUISITION_TIME = float(settings["picoscope"]["acquisition-time-s"]) # s
@@ -52,20 +54,19 @@ def main():
     FFT_initialized = FFT_parameters(COMPLEX_FFT, SAMPLING_FREQUENCY, FFT_RESOL, SMOOTHING, SMOOTHING_WINDOW, FREQUENCY_MIN, FREQUENCY_MAX, PRINT_FFT_INFO)
     OFFSET_REMOVAL = settings["signal-processing"]["offset-removal"] # Boolean.
 
-    # Raspberry Pi Zero settings
-    PWM_PIN = settings["raspberry-pi-zero"]["pwm-board-pin"] # Board pin number.
-    PWM_FREQUENCY = settings["raspberry-pi-zero"]["pwm-frequency"] # 50 Hz default.
-    RAW_DATA = settings["raspberry-pi-zero"]["raw-data"] # Boolean. Data stored in *.txt files.
-    SHOW_FIGURE = settings["raspberry-pi-zero"]["show-figure"] # Boolean. Disable if running on Raspberry Pi Zero without GUI.
-    SAVE_PLOTS = settings["raspberry-pi-zero"]["save-plots"] # Boolean. For each acquisition, the plots saved in PNG or PDF format.
-    PNG_PLOT = settings["raspberry-pi-zero"]["png-plot"] # Boolean.
-    PDF_PLOT = settings["raspberry-pi-zero"]["pdf-plot"] # Boolean. 
-    PLOT_PATH = settings["raspberry-pi-zero"]["plot-path"]
-    REALTIME_MEAS = settings["raspberry-pi-zero"]["realtime-measurements"] # Boolean. Real-time measurements of Doppler velocity.
-    TARGET_THRESHOLD = settings["raspberry-pi-zero"]["target-threshold-dBV"] # dBV. If FFT maximum is under this value, target not detected.
-    MIN_BEAM_ANGLE = settings["raspberry-pi-zero"]["min-beam-angle"] # Degree. Angle between broadside direction and beam direction.
-    MAX_BEAM_ANGLE = settings["raspberry-pi-zero"]["max-beam-angle"] # Degree. Angle between broadside direction and beam direction.
-    DIRECTIONS = settings["raspberry-pi-zero"]["directions"]
+    # Raspberry Pi 3B+ settings
+    MEASURE_TILE_ANGLE = settings["raspberry-pi-3bplus"]["measure-tilt-angle"] # Boolean. If True, enable measurement of tilt angle with ADXL345.
+    RAW_DATA = settings["raspberry-pi-3bplus"]["raw-data"] # Boolean. Data stored in *.txt files.
+    SHOW_FIGURE = settings["raspberry-pi-3bplus"]["show-figure"] # Boolean. Disable if running on Raspberry Pi without GUI.
+    SAVE_PLOTS = settings["raspberry-pi-3bplus"]["save-plots"] # Boolean. For each acquisition, the plots saved in PNG or PDF format.
+    PNG_PLOT = settings["raspberry-pi-3bplus"]["png-plot"] # Boolean.
+    PDF_PLOT = settings["raspberry-pi-3bplus"]["pdf-plot"] # Boolean. 
+    PLOT_PATH = settings["raspberry-pi-3bplus"]["plot-path"]
+    REALTIME_MEAS = settings["raspberry-pi-3bplus"]["realtime-measurements"] # Boolean. Real-time measurements of Doppler velocity.
+    TARGET_THRESHOLD = settings["raspberry-pi-3bplus"]["target-threshold-dBV"] # dBV. If FFT maximum is under this value, target not detected.
+    MIN_BEAM_ANGLE = settings["raspberry-pi-3bplus"]["min-beam-angle"] # Degree. Angle between broadside direction and beam direction.
+    MAX_BEAM_ANGLE = settings["raspberry-pi-3bplus"]["max-beam-angle"] # Degree. Angle between broadside direction and beam direction.
+    DIRECTIONS = settings["raspberry-pi-3bplus"]["directions"]
     if DIRECTIONS == 1: # Only broadside direction
         antennaBeamDirections_DEG = np.array([0])
     else:

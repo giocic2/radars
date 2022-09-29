@@ -6,8 +6,10 @@
         "rx-antenna-offset-m":0.12
     },
     "antennas":{
-        "min-scan-angle-deg":-15,
-        "max-scan-angle-deg":15
+        "min-squint-angle-deg":-15,
+        "max-squint-angle-deg":15,
+        "freq-min-squint-hz":24.5e9,
+        "freq-max-squint-hz":23.5e9
     },
     "accelerometer":{
         "averages":20
@@ -33,9 +35,8 @@
         "print-fft-info":true,
         "offset-removal":true
     },
-    "raspberry-3b-plus":{
-        "pwm-board-pin":7,
-        "pwm-frequency":50,
+    "raspberry-pi-3bplus":{
+        "measure-tilt-angle":true,
         "raw-data":true,
         "show-figure":false,
         "save-plots":true,
@@ -43,9 +44,10 @@
         "pdf-plot":false,
         "plot-path":"unipg_prototype/raw_samples/",
         "realtime-measurements":true,
-        "target-threshold-dBV":-90.0,
-        "min-beam-angle":-90,
-        "max-beam-angle":90,
+        "target-threshold-dBV":-60.0,
+        "beam-angle-info":"Beam angle must agree with beam squint limits.",
+        "min-beam-angle":-15,
+        "max-beam-angle":15,
         "directions":5
     },
     "statistical-analysis":{
