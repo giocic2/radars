@@ -6,6 +6,7 @@ import sys
 sys.path.insert(1, ".")
 import custom_modules.picoscope as picoscope
 from custom_modules.signal_processing import *
+import custom_modules.tilt_sensor_adafruit_ADXL345 as ADXL345
 
 def main():
 
@@ -29,6 +30,16 @@ def main():
     FREQ_MIN_SQUINT = float(settings["antennas"]["freq-min-squint-hz"]) # Hz. TRX frequency corresponding to beam directed toward MIN_SQUINT_ANGLE
     MAX_SQUINT_ANGLE = settings["antennas"]["max-squint-angle-deg"] # Degrees. Maximum horizontal beam angle, where 0° is the broadside direction.
     FREQ_MAX_SQUINT = float(settings["antennas"]["freq-max-squint-hz"]) # Hz. TRX frequency corresponding to beam directed toward MAX_SQUINT_ANGLE
+
+    # Accelerometer settings
+    ACCELEROMETER_AVERAGES = settings["accelerometer"]["averages"] # Tilt angle is evaluated averaging multiple measurements.
+    ## Parameters from calibration
+    X_MIN = settings["accelerometer"]["x-min"] 
+    X_MAX = settings["accelerometer"]["x-max"]
+    Y_MIN = settings["accelerometer"]["y-min"]
+    Y_MAX = settings["accelerometer"]["y-max"]
+    Z_MIN = settings["accelerometer"]["z-min"]
+    Z_MAX = settings["accelerometer"]["z-max"]
 
     # PicoScope 2206B settings
     ACQUISITION_TIME = float(settings["picoscope"]["acquisition-time-s"]) # s
@@ -74,8 +85,6 @@ def main():
         antennaBeamDirections_DEG = np.array([0])
     else:
         antennaBeamDirections_DEG = np.linspace(start=MIN_BEAM_ANGLE, stop=MAX_BEAM_ANGLE, num=DIRECTIONS, endpoint=True) # Degrees.
-    tiltAngle_DEG = 45 # Degrees.
-    tiltAngle_DEG_str = "tilt" + str("{0:.1f}".format(tiltAngle_DEG)) + "deg"
 
     # Statistical analysis settings
     STATISTICAL_ANALYSIS = settings["statistical-analysis"]["enabling"] # Boolean. Enable/disable statystical analysis.
@@ -87,6 +96,11 @@ def main():
     FFT_dBV_peaks = np.zeros((EPISODES, DIRECTIONS))
     centroid_frequencies = np.zeros((EPISODES, DIRECTIONS))
     surface_velocities_table = np.zeros((EPISODES, DIRECTIONS))
+
+    # Measure tilt angle
+    accelerometer = ADXL345.setup_ADX345()
+    tiltAngle_DEG = ADXL345.tilt_angle(accelerometer, X_MIN, X_MAX, Y_MIN, Y_MAX, Z_MIN, Z_MAX, ACCELEROMETER_AVERAGES) # Degrees.
+    tiltAngle_DEG_str = "tilt" + str("{0:.1f}".format(tiltAngle_DEG)) + "deg"
 
 if __name__ == "__main__":
     main()

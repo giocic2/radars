@@ -47,6 +47,8 @@ def setup_ADX345():
     # bit5-1: samples needed to trigger watermark interrupt (immediately)
     accelerometer._write_register_byte(adafruit_adxl34x._REG_FIFO_CTL, 0b10000000)
 
+    return accelerometer
+
 def calibration(accelerometer, iterations):
     x_avg = 0
     y_avg = 0
@@ -104,7 +106,7 @@ def calibration(accelerometer, iterations):
         
     return x_min, x_max, y_min, y_max, z_min, z_max
 
-def tilt_angle(accelerometer, x_min, x_max, y_min, y_max, z_min, z_max):
+def tilt_angle(accelerometer, x_min, x_max, y_min, y_max, z_min, z_max, accel_averages):
     # Offset expressed in LSB.
     # We use this instead of OFS_ registers for finer tuning.
     # These numbers depends on calibration results for a specific sensor.
@@ -127,21 +129,21 @@ def tilt_angle(accelerometer, x_min, x_max, y_min, y_max, z_min, z_max):
     repeatMeasurement = True
 
     while (continueCalibration == True):
-        for directionIndex in range(ACCELL_AVERAGES):
+        for directionIndex in range(accel_averages):
             DATA_XYZ = accelerometer._read_register(adafruit_adxl34x._REG_DATAX0, 6)
             time.sleep(0.1)
             x, y, z = unpack("<hhh",DATA_XYZ)
             x_g = x - x_offset
             y_g = y - y_offset
             z_g = z - z_offset
-            x_g_avg = x_g_avg + x_g/ACCELL_AVERAGES
-            y_g_avg = y_g_avg + y_g/ACCELL_AVERAGES
-            z_g_avg = z_g_avg + z_g/ACCELL_AVERAGES
+            x_g_avg = x_g_avg + x_g/accel_averages
+            y_g_avg = y_g_avg + y_g/accel_averages
+            z_g_avg = z_g_avg + z_g/accel_averages
             # Two formulas to evaluate the same tilt angle
             tiltAngle_1st = np.arcsin(- z_g / z_cfs)
             tiltAngle_2nd = np.arccos(+ y_g / y_cfs)
-            tiltAngle_1st_avg = tiltAngle_1st_avg + tiltAngle_1st/ACCELL_AVERAGES
-            tiltAngle_2nd_avg = tiltAngle_2nd_avg + tiltAngle_2nd/ACCELL_AVERAGES
+            tiltAngle_1st_avg = tiltAngle_1st_avg + tiltAngle_1st/accel_averages
+            tiltAngle_2nd_avg = tiltAngle_2nd_avg + tiltAngle_2nd/accel_averages
         tiltAngle_avg = (tiltAngle_1st_avg + tiltAngle_2nd_avg) / 2
     # 	print("x y z [LSB]:", round(x_g_avg), round(y_g_avg), round(z_g_avg))
     # 	print("Tilt angle [deg] (two values that should be equal): {0:.2f} {1:.2f}".format(numpy.rad2deg(tiltAngle_1st_avg), numpy.rad2deg(tiltAngle_2nd_avg)))
@@ -169,7 +171,8 @@ def tilt_angle(accelerometer, x_min, x_max, y_min, y_max, z_min, z_max):
         z_g_avg = 0
         tiltAngle_1st_avg = 0
         tiltAngle_2nd_avg = 0
-    tiltAngle = str("{0:.1f}".format(np.rad2deg(tiltAngle_avg))) + "deg"
+    tiltAngle_DEG = np.rad2deg(tiltAngle_avg)
+    return tiltAngle_DEG
 
 if __name__ == "__main__":
     print("Standalone script not yet delevoped.")
