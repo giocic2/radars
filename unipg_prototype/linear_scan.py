@@ -100,6 +100,7 @@ def main():
     # Measure tilt angle
     accelerometer = ADXL345.setup_ADX345()
     tiltAngle_DEG = ADXL345.tilt_angle(accelerometer, X_MIN, X_MAX, Y_MIN, Y_MAX, Z_MIN, Z_MAX, ACCELEROMETER_AVERAGES) # Degrees.
+    ADXL345.sleep_mode(accelerometer)
     tiltAngle_DEG_str = "tilt" + str("{0:.1f}".format(tiltAngle_DEG)) + "deg"
 
 if __name__ == "__main__":

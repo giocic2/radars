@@ -174,5 +174,9 @@ def tilt_angle(accelerometer, x_min, x_max, y_min, y_max, z_min, z_max, accel_av
     tiltAngle_DEG = np.rad2deg(tiltAngle_avg)
     return tiltAngle_DEG
 
+def sleep_mode(accelerometer):
+    # Accelerometer in sleep mode
+    accelerometer._write_register_byte(adafruit_adxl34x._REG_BW_RATE, 0b00000100)
+
 if __name__ == "__main__":
     print("Standalone script not yet delevoped.")
