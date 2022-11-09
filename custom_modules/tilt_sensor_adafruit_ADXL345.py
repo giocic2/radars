@@ -128,7 +128,7 @@ def tilt_angle(accelerometer, x_min, x_max, y_min, y_max, z_min, z_max, accel_av
     tiltAngle_2nd_avg = 0
     repeatMeasurement = True
 
-    while (continueCalibration == True):
+    while repeatMeasurement:
         for directionIndex in range(accel_averages):
             DATA_XYZ = accelerometer._read_register(adafruit_adxl34x._REG_DATAX0, 6)
             time.sleep(0.1)
@@ -157,10 +157,10 @@ def tilt_angle(accelerometer, x_min, x_max, y_min, y_max, z_min, z_max, accel_av
         continueTakingUserInput = True
         while continueTakingUserInput == True:
             if whatNext == 'y':
-                continueCalibration = True
+                repeatMeasurement = True
                 continueTakingUserInput = False
             if whatNext == 'n':
-                continueCalibration = False
+                repeatMeasurement = False
                 continueTakingUserInput = False
             if whatNext != 'y' and whatNext != 'n':
                 print("Please type correctly [y/n].")
