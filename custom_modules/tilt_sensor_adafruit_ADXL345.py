@@ -126,8 +126,9 @@ def tilt_angle(accelerometer, x_min, x_max, y_min, y_max, z_min, z_max, accel_av
     z_g_avg = 0
     tiltAngle_1st_avg = 0
     tiltAngle_2nd_avg = 0
+    tiltAngle_evaluated = False
 
-    while repeatMeasurement:
+    while not tiltAngle_evaluated:
         for measurement in range(accel_averages):
             DATA_XYZ = accelerometer._read_register(adafruit_adxl34x._REG_DATAX0, 6)
             time.sleep(0.1)
@@ -144,32 +145,30 @@ def tilt_angle(accelerometer, x_min, x_max, y_min, y_max, z_min, z_max, accel_av
             tiltAngle_1st_avg = tiltAngle_1st_avg + tiltAngle_1st/accel_averages
             tiltAngle_2nd_avg = tiltAngle_2nd_avg + tiltAngle_2nd/accel_averages
         tiltAngle_avg = (tiltAngle_1st_avg + tiltAngle_2nd_avg) / 2
-    # 	print("x y z [LSB]:", round(x_g_avg), round(y_g_avg), round(z_g_avg))
-    # 	print("Tilt angle [deg] (two values that should be equal): {0:.2f} {1:.2f}".format(numpy.rad2deg(tiltAngle_1st_avg), numpy.rad2deg(tiltAngle_2nd_avg)))
-        print("Estimated tilt angle [deg]: {0:.1f}".format(np.rad2deg(tiltAngle_avg)))
+        print("Tilt angle [deg]: {0:.1f}".format(np.rad2deg(tiltAngle_avg)))
         if round(x_g_avg) != 0:
             print("WARNING: gravity along X-axis should be 0! Please align the sensor horizontally.")
             print("x: ", round(x_g_avg))
         accelerometer._write_register_byte(adafruit_adxl34x._REG_BW_RATE, 0b00000000)
         accelerometer._write_register_byte(adafruit_adxl34x._REG_BW_RATE, 0b00001000)
-        whatNext = input("Repeat tilt angle measurement? [y/n]: ")
-        continueTakingUserInput = True
-        while continueTakingUserInput == True:
-            if whatNext == 'y':
-                repeatMeasurement = True
-                continueTakingUserInput = False
-            if whatNext == 'n':
-                repeatMeasurement = False
-                continueTakingUserInput = False
-            if whatNext != 'y' and whatNext != 'n':
-                print("Please type correctly [y/n].")
-                continueTakingUserInput = True
-        time.sleep(0.5)
-        x_g_avg = 0
-        y_g_avg = 0
-        z_g_avg = 0
-        tiltAngle_1st_avg = 0
-        tiltAngle_2nd_avg = 0
+        if repeatMeasurement:
+            whatNext = input("Repeat tilt angle measurement? [y/n]: ")
+            continueTakingUserInput = True
+            while continueTakingUserInput == True:
+                if whatNext == 'y':
+                    continueTakingUserInput = False
+                elif whatNext == 'n':
+                    repeatMeasurement = False
+                    continueTakingUserInput = False
+                else:
+                    print("Please type correctly [y/n].")
+                    continueTakingUserInput = True
+            time.sleep(0.5)
+            x_g_avg = 0
+            y_g_avg = 0
+            z_g_avg = 0
+            tiltAngle_1st_avg = 0
+            tiltAngle_2nd_avg = 0
     tiltAngle_DEG = np.rad2deg(tiltAngle_avg)
     return tiltAngle_DEG
 
