@@ -16,7 +16,7 @@ def invalid_channel_range():
 def get_channel_range_id(channelRange: str):
     channelRanges = {'20e-3': 1, '50e-3': 2, '100e-3': 3, '200e-3': 4, '500e-3': 5, '1': 6, '2': 7, '5': 8, '10': 9, '20': 10}
     channel_range_id = channelRanges.get(channelRange, invalid_channel_range)
-    return channel_range_id    
+    return channel_range_id
 
 if __name__ == "__main__":
     print("Standalone script not yet delevoped.")
