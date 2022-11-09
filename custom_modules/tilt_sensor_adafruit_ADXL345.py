@@ -169,6 +169,8 @@ def tilt_angle(accelerometer, x_min, x_max, y_min, y_max, z_min, z_max, accel_av
             z_g_avg = 0
             tiltAngle_1st_avg = 0
             tiltAngle_2nd_avg = 0
+        else:
+            tiltAngle_evaluated = True
     tiltAngle_DEG = np.rad2deg(tiltAngle_avg)
     return tiltAngle_DEG
 
