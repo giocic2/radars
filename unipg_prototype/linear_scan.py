@@ -33,6 +33,7 @@ def main():
 
     # Accelerometer settings
     ACCELEROMETER_AVERAGES = settings["accelerometer"]["averages"] # Tilt angle is evaluated averaging multiple measurements.
+    REPEAT_MEASUREMENT = settings["accelerometer"]["repeat-measurement"] # Ask to repeat tilt angle measurement.
     ## Parameters from calibration
     X_MIN = settings["accelerometer"]["x-min"] 
     X_MAX = settings["accelerometer"]["x-max"]
@@ -99,7 +100,7 @@ def main():
 
     # Measure tilt angle
     accelerometer = ADXL345.setup_ADX345()
-    tiltAngle_DEG = ADXL345.tilt_angle(accelerometer, X_MIN, X_MAX, Y_MIN, Y_MAX, Z_MIN, Z_MAX, ACCELEROMETER_AVERAGES) # Degrees.
+    tiltAngle_DEG = ADXL345.tilt_angle(accelerometer, X_MIN, X_MAX, Y_MIN, Y_MAX, Z_MIN, Z_MAX, ACCELEROMETER_AVERAGES, REPEAT_MEASUREMENT) # Degrees.
     ADXL345.sleep_mode(accelerometer)
     tiltAngle_DEG_str = "tilt" + str("{0:.1f}".format(tiltAngle_DEG)) + "deg"
 

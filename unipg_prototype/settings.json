@@ -18,7 +18,8 @@
         "y-min":-244,
         "y-max":261,
         "z-min":-258,
-        "z-max":242
+        "z-max":242,
+        "repeat-measurement":false
     },
     "picoscope":{
         "acquisition-time-s":0.5,

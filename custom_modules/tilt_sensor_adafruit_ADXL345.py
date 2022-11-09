@@ -106,7 +106,7 @@ def calibration(accelerometer, iterations):
         
     return x_min, x_max, y_min, y_max, z_min, z_max
 
-def tilt_angle(accelerometer, x_min, x_max, y_min, y_max, z_min, z_max, accel_averages):
+def tilt_angle(accelerometer, x_min, x_max, y_min, y_max, z_min, z_max, accel_averages, repeatMeasurement):
     # Offset expressed in LSB.
     # We use this instead of OFS_ registers for finer tuning.
     # These numbers depends on calibration results for a specific sensor.
@@ -126,10 +126,9 @@ def tilt_angle(accelerometer, x_min, x_max, y_min, y_max, z_min, z_max, accel_av
     z_g_avg = 0
     tiltAngle_1st_avg = 0
     tiltAngle_2nd_avg = 0
-    repeatMeasurement = True
 
     while repeatMeasurement:
-        for directionIndex in range(accel_averages):
+        for measurement in range(accel_averages):
             DATA_XYZ = accelerometer._read_register(adafruit_adxl34x._REG_DATAX0, 6)
             time.sleep(0.1)
             x, y, z = unpack("<hhh",DATA_XYZ)
