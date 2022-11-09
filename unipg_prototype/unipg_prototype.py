@@ -58,7 +58,7 @@ def main():
     OFFSET_REMOVAL = settings["signal-processing"]["offset-removal"] # Boolean.
 
     # Raspberry Pi 3B+ settings
-    MEASURE_TILE_ANGLE = settings["raspberry-pi-3bplus"]["measure-tilt-angle"] # Boolean. If True, enable measurement of tilt angle with ADXL345.
+    MEASURE_TILT_ANGLE = settings["raspberry-pi-3bplus"]["measure-tilt-angle"] # Boolean. If True, enable measurement of tilt angle with ADXL345.
     RAW_DATA = settings["raspberry-pi-3bplus"]["raw-data"] # Boolean. Data stored in *.txt files.
     SHOW_FIGURE = settings["raspberry-pi-3bplus"]["show-figure"] # Boolean. Disable if running on Raspberry Pi without GUI.
     SAVE_PLOTS = settings["raspberry-pi-3bplus"]["save-plots"] # Boolean. For each acquisition, the plots saved in PNG or PDF format.
