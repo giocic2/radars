@@ -33,11 +33,11 @@ def main():
     # PicoScope 2206B settings
     ACQUISITION_TIME = float(settings["picoscope"]["acquisition-time-s"]) # s
     SAMPLING_FREQUENCY = picoscope.conform_sampling_frequency(float(settings["picoscope"]["sampling-frequency-Hz"])) # Hz
-    print('Sampling frequency: {:,}'.format(SAMPLING_FREQUENCY) + ' Hz')
+    print('Sampling frequency: {:.3e}'.format(SAMPLING_FREQUENCY) + ' Hz')
     time_resolution = 1/SAMPLING_FREQUENCY # s
-    print('Time resolution: {:,}'.format(time_resolution) + ' s')
+    print('Time resolution: {:.3e}'.format(time_resolution) + ' s')
     totalSamples = round(ACQUISITION_TIME/time_resolution)
-    print('Number of total samples (for each channel): {:,}'.format(totalSamples))
+    print('Number of total samples (for each channel): {:,d}'.format(totalSamples))
     CH_A_RANGE_V = picoscope.get_channel_range_id(settings["picoscope"]["channel-a-range-v"]) # Volts.
     CH_B_RANGE_V = picoscope.get_channel_range_id(settings["picoscope"]["channel-b-range-v"]) # Volts.
     TRIGGER_DELAY_SEC = float(settings["picoscope"]["trigger-delay-s"]) # s

@@ -21,10 +21,10 @@ def FFT_parameters(complexFFT: bool, samplingFrequency: float, resolution: float
         maxBin = int(np.round(FREQUENCY_MAX / (samplingFrequency/freqBins_FFT)))
         FREQUENCY_MAX = maxBin * samplingFrequency/freqBins_FFT
     if print_FFT_info==True:
-        print('FFT resolution: ' + str(samplingFrequency / freqBins_FFT) + ' Hz')
-        print('FFT bins: ' + str(freqBins_FFT))
+        print('FFT resolution: {:.3e} Hz'.format(samplingFrequency / freqBins_FFT))
+        print('FFT bins: {:,d}'.format(freqBins_FFT))
         if smoothing == True:
-            print('Size of smoothing window (moving average): ' + str(smoothingBins) + ' bins')
+            print('Size of smoothing window (moving average): {:,d} bins - {:,f} Hz'.format(smoothingBins, smoothingWindow))
         print("Minimum frequency of interest: {:.1f} Hz".format(frequencyMin_fixed))
         print("Maximum frequency of interest: {:.1f} Hz".format(frequencyMin_fixed))
     return True  
