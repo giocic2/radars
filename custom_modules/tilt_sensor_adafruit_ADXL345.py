@@ -154,8 +154,9 @@ def tilt_angle(accelerometer, x_min, x_max, y_min, y_max, z_min, z_max, accel_av
         if repeatMeasurement:
             whatNext = input("Repeat tilt angle measurement? [y/n]: ")
             continueTakingUserInput = True
-            while continueTakingUserInput == True:
+            while continueTakingUserInput:
                 if whatNext == 'y':
+                    repeatMeasurement = True
                     continueTakingUserInput = False
                 elif whatNext == 'n':
                     repeatMeasurement = False
@@ -171,6 +172,8 @@ def tilt_angle(accelerometer, x_min, x_max, y_min, y_max, z_min, z_max, accel_av
             tiltAngle_2nd_avg = 0
         else:
             tiltAngle_evaluated = True
+        if not repeatMeasurement:
+            break
     tiltAngle_DEG = np.rad2deg(tiltAngle_avg)
     return tiltAngle_DEG
 
