@@ -24,7 +24,7 @@ def FFT_parameters(complexFFT: bool, samplingFrequency: float, resolution: float
         print('FFT resolution: {:.3e} Hz'.format(samplingFrequency / freqBins_FFT))
         print('FFT bins: {:,d}'.format(freqBins_FFT))
         if smoothing == True:
-            print('Size of smoothing window (moving average): {:,d} bins, {:,1f} Hz'.format(smoothingBins, smoothingWindow))
+            print('Size of smoothing window (moving average): {:,d} bins, {:.1f} Hz'.format(smoothingBins, smoothingWindow))
         print("Minimum frequency of interest: {:.1f} Hz".format(frequencyMin_fixed))
         print("Maximum frequency of interest: {:.1f} Hz".format(frequencyMin_fixed))
     return True  
