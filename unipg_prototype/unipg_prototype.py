@@ -1,6 +1,9 @@
 import json
 from datetime import datetime
 import shutil
+import sys
+
+sys.path.insert(1, ".")
 import custom_modules.picoscope as picoscope
 from custom_modules.signal_processing import *
 
