@@ -12,7 +12,13 @@
         "freq-max-squint-hz":23.5e9
     },
     "accelerometer":{
-        "averages":20
+        "averages":20,
+        "x_min":-249,
+        "x_max":260,
+        "y_min":-244,
+        "y_max":261,
+        "z_min":-258,
+        "z_max":242
     },
     "picoscope":{
         "acquisition-time-s":0.5,
