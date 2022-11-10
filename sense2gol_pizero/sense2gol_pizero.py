@@ -142,7 +142,7 @@ def main():
             plot_paper_format(timeAxis_s, Q_array_mV, "Time (s)", "IFQ voltage (V)", SHOW_FIGURE, SAVE_PLOTS, PDF_PLOT, PNG_PLOT, PLOT_PATH)
             
             # FFT evaluation
-            assert FFT_initialized, "FFT not initialized. Use \'FFT_parameters()\' from FFT.py costum module."
+            assert FFT_initialized, "FFT not initialized. Use \'FFT_parameters()\' from signal_processing.py costum module."
             FFT_dBV_peaks[episode,direction], centroid_frequencies[episode,direction], surface_velocities_table[episode,direction], FFT_dBV, freqAxis_Hz = FFT(complexSignal_mV, COMPLEX_FFT, array_length, SAMPLING_FREQUENCY, OFFSET_REMOVAL, HANNING_WINDOWING, ZERO_FORCING, SMOOTHING, TARGET_THRESHOLD, BANDWIDTH_THRESHOLD, direction_DEG, tiltAngle_DEG)
             # Plot of FFT
             plot_paper_format(freqAxis_Hz, FFT_dBV, "Frequency (Hz)", "FFT magnitude (dBV)", SHOW_FIGURE, SAVE_PLOTS, PDF_PLOT, PNG_PLOT, PLOT_PATH)
@@ -163,9 +163,9 @@ def main():
                     for direction in range(DIRECTIONS):
                         shapiro_test = stats.shapiro(surface_velocities_table[:episode+1,direction])
                         print('[{:.1f},'.format(antennaBeamDirections_DEG[direction]), end='\t')
-                        print('{:.1f},'.format(np.mean(surface_velocities_table[:episode+1,direction])), end='\t')
-                        print('{:.1f},'.format(np.std(surface_velocities_table[:episode+1,direction], ddof=1)), end='\t')
-                        print('{:.1f},'.format(shapiro_test.statistic), end='\t')
+                        print('{:.3f},'.format(np.mean(surface_velocities_table[:episode+1,direction])), end='\t')
+                        print('{:.3f},'.format(np.std(surface_velocities_table[:episode+1,direction], ddof=1)), end='\t')
+                        print('{:.3f},'.format(shapiro_test.statistic), end='\t')
                         print('{:.3f}]'.format(shapiro_test.pvalue))
     
     # Generate report
@@ -192,9 +192,9 @@ def main():
                 for direction in range(DIRECTIONS):
                     shapiro_test = stats.shapiro(surface_velocities_table[:episode+1,direction])
                     file.write('[{:.1f},\t'.format(antennaBeamDirections_DEG[direction]))
-                    file.write('{:.1f},\t'.format(np.mean(surface_velocities_table[:episode+1,direction])))
-                    file.write('{:.1f},\t'.format(np.std(surface_velocities_table[:episode+1,direction], ddof=1)))
-                    file.write('{:.1f},\t'.format(shapiro_test.statistic))
+                    file.write('{:.3f},\t'.format(np.mean(surface_velocities_table[:episode+1,direction])))
+                    file.write('{:.3f},\t'.format(np.std(surface_velocities_table[:episode+1,direction], ddof=1)))
+                    file.write('{:.3f},\t'.format(shapiro_test.statistic))
                     file.write('{:.3f}]\n'.format(shapiro_test.pvalue))
     print('Done.')
     shut_down_servo(servo_motor)
