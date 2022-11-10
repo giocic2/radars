@@ -56,7 +56,7 @@ def centroid_estimation(inputArray, bandwidthThreshold, freqAxis_Hz, frequencyMi
     print('Bandwidth starts at {:.1f}'.format(startBand) + ' Hz')
     print('Bandwidth stops at {:.1f}'.format(stopBand) + ' Hz')
     print('Center frequency of Doppler centroid: {:.1f}'.format(centroid_frequency) + ' Hz')
-    return centroid_frequency
+    return centroid_frequency, startBand, stopBand
 
 def evaluate_surface_velocity(centroid_frequency, antennaBeamDirection_DEG, tiltAngle_DEG):
     surface_velocity = (3e8 * centroid_frequency) / (2 * (24.125e9) * np.cos(np.deg2rad(antennaBeamDirection_DEG) * np.cos(np.deg2rad(tiltAngle_DEG))))
@@ -77,9 +77,9 @@ def FFT(signal_mV, complexFFT: bool, totalSamples: int, samplingFrequency: float
         FFT_dBV = 20*np.log10(FFT_mV/1000)
         FFT_dBV_max = np.amax(FFT_dBV)
         if smoothing == True:
-            FFT_dBV = np.convolve(FFT_dBV, np.ones(smoothingBins), 'same') / smoothingBins
+            FFT_dBV_smoothed = np.convolve(FFT_dBV, np.ones(smoothingBins), 'same') / smoothingBins
             FFT_dBV_max_previous = FFT_dBV_max
-            FFT_dBV_max = np.amax(FFT_dBV)
+            FFT_dBV_max = np.amax(FFT_dBV_smoothed)
             shift_of_FFT_max = FFT_dBV_max_previous - FFT_dBV_max # dB
             print("After smoothing, the FTT peak is shifted by {:.1f} dB".format(shift_of_FFT_max))
         freqAxis = np.fft.fftshift(np.fft.fftfreq(freqBins_FFT)) # freqBins+1
@@ -91,14 +91,14 @@ def FFT(signal_mV, complexFFT: bool, totalSamples: int, samplingFrequency: float
     if (FFT_dBV_max < targetThreshold):
         print('WARNING: Target not detected.')
         centroid_frequency = 0 # Hz
-    elif (FFT_dBV[minBin] >= FFT_dBV_max - bandwidthThreshold):
+    elif (FFT_dBV_smoothed[minBin] >= FFT_dBV_max - bandwidthThreshold):
         print('WARNING: The zero-forcing window is too narrow.')
         raise ValueError
     else:
         # Doppler centroid
-        centroid_frequency = centroid_estimation(FFT_dBV, bandwidthThreshold, freqAxis_Hz, frequencyMin_fixed, FFT_dBV_max)
+        centroid_frequency, centroid_start, centroid_stop = centroid_estimation(FFT_dBV_smoothed, bandwidthThreshold, freqAxis_Hz, frequencyMin_fixed, FFT_dBV_max)
     surface_velocity = evaluate_surface_velocity(centroid_frequency, antennaBeamDirection_DEG, tiltAngle_DEG)
-    return FFT_dBV_max, centroid_frequency, surface_velocity, FFT_dBV, freqAxis_Hz
+    return FFT_dBV_max, centroid_frequency, centroid_start, centroid_stop, surface_velocity, FFT_dBV, FFT_dBV_smoothed, freqAxis_Hz
 
 if __name__ == "__main__":
     print("Standalone script not yet developed.")

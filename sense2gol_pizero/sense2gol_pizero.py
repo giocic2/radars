@@ -13,7 +13,7 @@ import sys
 sys.path.insert(1, ".")
 from custom_modules.signal_processing import FFT_parameters, FFT
 from custom_modules.sense2gol_rawdata import txt_extract, txt_generate
-from custom_modules.plots_readytouse import plot_paper_format
+from custom_modules.plots_readytouse import plot_IFI_IFQ, plot_doppler_centroid
 from custom_modules.servo_motor import define_PWM_pin, rotate_servo_to_angle, shut_down_servo
 import numpy as np
 import shutil
@@ -99,11 +99,11 @@ def main():
     servo_motor = define_PWM_pin(PWM_PIN, PWM_FREQUENCY)
 
     for episode in range(EPISODES):
-        print("*****************")
-        print("EPISODE {:d} OF {:d}:".format(episode+1, EPISODES))
+        text = "EPISODE {:d} OF {:d}".format(episode+1, EPISODES)
+        print(f"{text:-^60}")
         for direction in range(DIRECTIONS):
-            print("*****************")
-            print("Scanning direction " + str(direction+1) + " of " + str(DIRECTIONS) + "...")
+            text = "Scanning direction " + str(direction+1) + " of " + str(DIRECTIONS)
+            print(f"{text:-^60}")
             direction_DEG = antennaBeamDirections_DEG[direction]
             direction_DEG_str = "dir" + str("{0:.1f}".format(direction_DEG)) + "deg"
             rotate_servo_to_angle(servo_motor, direction_DEG)
@@ -138,14 +138,13 @@ def main():
             complexSignal_mV = np.add(I_array_mV, 1j*Q_array_mV)
             timeAxis_s = np.linspace(start=0, num=array_length, stop=array_length, endpoint=False) / SAMPLING_FREQUENCY
             # Plot of time-domain signals
-            plot_paper_format(timeAxis_s, I_array_mV, "Time (s)", "IFI voltage (V)", SHOW_FIGURE, SAVE_PLOTS, PDF_PLOT, PNG_PLOT, PLOT_PATH)
-            plot_paper_format(timeAxis_s, Q_array_mV, "Time (s)", "IFQ voltage (V)", SHOW_FIGURE, SAVE_PLOTS, PDF_PLOT, PNG_PLOT, PLOT_PATH)
+            plot_IFI_IFQ(timeAxis_s, I_array_mV, timeAxis_s, Q_array_mV, "time (s)", "voltage (mV)", SHOW_FIGURE, SAVE_PLOTS, PDF_PLOT, PNG_PLOT, PLOT_PATH)
             
             # FFT evaluation
             assert FFT_initialized, "FFT not initialized. Use \'FFT_parameters()\' from signal_processing.py costum module."
-            FFT_dBV_peaks[episode,direction], centroid_frequencies[episode,direction], surface_velocities_table[episode,direction], FFT_dBV, freqAxis_Hz = FFT(complexSignal_mV, COMPLEX_FFT, array_length, SAMPLING_FREQUENCY, OFFSET_REMOVAL, HANNING_WINDOWING, ZERO_FORCING, SMOOTHING, TARGET_THRESHOLD, BANDWIDTH_THRESHOLD, direction_DEG, tiltAngle_DEG)
+            FFT_dBV_peaks[episode,direction], centroid_frequencies[episode,direction], centroid_start, centroid_stop, surface_velocities_table[episode,direction], FFT_dBV, FFT_dBV_smoothed, freqAxis_Hz = FFT(complexSignal_mV, COMPLEX_FFT, array_length, SAMPLING_FREQUENCY, OFFSET_REMOVAL, HANNING_WINDOWING, ZERO_FORCING, SMOOTHING, TARGET_THRESHOLD, BANDWIDTH_THRESHOLD, direction_DEG, tiltAngle_DEG)
             # Plot of FFT
-            plot_paper_format(freqAxis_Hz, FFT_dBV, "Frequency (Hz)", "FFT magnitude (dBV)", SHOW_FIGURE, SAVE_PLOTS, PDF_PLOT, PNG_PLOT, PLOT_PATH)
+            plot_doppler_centroid(freqAxis_Hz, FFT_dBV, FFT_dBV_smoothed, centroid_start, centroid_stop, "frequency (Hz)", "FFT magnitude (dBV)", SHOW_FIGURE, SAVE_PLOTS, PDF_PLOT, PNG_PLOT, PLOT_PATH)
 
             if REALTIME_MEAS == True:
                 print('Recap:')
