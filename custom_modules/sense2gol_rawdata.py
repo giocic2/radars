@@ -51,18 +51,26 @@ def txt_extract(file_name):
     print("Number of IFI samples: ", len(I_samples))
     print("Number of IFQ samples: ", len(Q_samples))
 
-    array_length = min(len(I_samples), len(Q_samples))
-    print("Processed signals length: ", array_length)
+    IQ_arrays_length = min(len(I_samples), len(Q_samples))
+    print("Processed signals length: ", IQ_arrays_length)
 
     # Seems that Q and I needs to be inverted
-    Q_array = np.array(I_samples[0:array_length])
-    I_array = np.array(Q_samples[0:array_length])
+    Q_array = np.array(I_samples[0:IQ_arrays_length])
+    I_array = np.array(Q_samples[0:IQ_arrays_length])
 
-    return I_array, Q_array, array_length
+    # Convert V to mV
+    I_array_mV = I_array * (ADC_RANGE_V / ADC_RANGE_BITS) * 1000 # mV
+    Q_array_mV = Q_array * (ADC_RANGE_V / ADC_RANGE_BITS) * 1000 # mV
+    # Convert to complex
+    complexSignal_mV = np.array(IQ_arrays_length)
+    complexSignal_mV = np.add(I_array_mV, 1j*Q_array_mV)
+    timeAxis_s = np.linspace(start=0, num=IQ_arrays_length, stop=IQ_arrays_length, endpoint=False) / SAMPLING_FREQUENCY
+
+    return I_array_mV, Q_array_mV, complexSignal_mV, timeAxis_s, IQ_arrays_length
 
 def txt_generate(serialDevice, lines_to_be_read, timestamp):
     samplesFileName = timestamp + ".txt"
-    completeFileName = os.path.join('sense2gol_pizero/raw-samples',samplesFileName)
+    completeFileName = os.path.join('sense2gol_pizero/output',samplesFileName)
     # open text file to store the current
     text_file = open(completeFileName, 'wb')
     # read serial data and write it to the text file
@@ -98,7 +106,7 @@ if __name__ == "__main__":
     # Open acquisition settings
     json_filename = None
     while json_filename == None:
-        json_filename = easygui.fileopenbox(title = "Choose *.json file to lead acquisition settings...", default = "*.json")
+        json_filename = easygui.fileopenbox(title = "Choose *.json file to read acquisition settings...", default = "*.json")
     print(json_filename)
 
     # Load settings from *.json file.

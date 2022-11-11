@@ -6,7 +6,6 @@ def FFT_parameters(complexFFT: bool, samplingFrequency: float, resolution: float
     Define FFT bins and resolution.
     :return: Boolean flag (True) after FFT parameters are defined.
     '''
-    global freqBins_FFT, smoothingBins, minBin, frequencyMin_fixed, maxBin, frequencyMax_fixed
     freqBins_FFT = int(2**np.ceil(np.log2(abs(samplingFrequency/2/resolution))))
     smoothingBins = int(round(smoothingWindow / (samplingFrequency / freqBins_FFT)))
     if complexFFT==True:
@@ -27,9 +26,9 @@ def FFT_parameters(complexFFT: bool, samplingFrequency: float, resolution: float
             print('Size of smoothing window (moving average): {:,d} bins, {:.1f} Hz'.format(smoothingBins, smoothingWindow))
         print("Minimum frequency of interest: {:.1f} Hz".format(frequencyMin_fixed))
         print("Maximum frequency of interest: {:.1f} Hz".format(frequencyMax_fixed))
-    return True
+    return True, freqBins_FFT, smoothingBins, minBin, maxBin
 
-def centroid_estimation(inputArray, bandwidthThreshold, freqAxis_Hz, frequencyMin, FFT_dBV_max):
+def centroid_estimation(inputArray, bandwidthThreshold, freqAxis_Hz, frequencyMin, FFT_dBV_max, freqBins_FFT):
     maxValue = np.amax(inputArray)
     freqIndex = 0
     stopIndex = 0
@@ -64,7 +63,7 @@ def evaluate_surface_velocity(centroid_frequency, antennaBeamDirection_DEG, tilt
     print('Resulting surface velocity: {:.3f}'.format((3e8 * centroid_frequency) / (2 * (24.125e9) * np.cos(np.deg2rad(antennaBeamDirection_DEG) * np.cos(tiltAngle_DEG)))), ' m/s')
     return surface_velocity
 
-def FFT(signal_mV, complexFFT: bool, totalSamples: int, samplingFrequency: float, offsetRemoval: bool, hanningWindowing: bool, zeroForcing: bool, smoothing: bool, targetThreshold: float, bandwidthThreshold: float, antennaBeamDirection_DEG: float, tiltAngle_DEG: float):
+def FFT(signal_mV, complexFFT: bool, totalSamples: int, samplingFrequency: float, freqBins_FFT, offsetRemoval: bool, hanningWindowing: bool, zeroForcing: bool, minBin, maxBin, smoothing: bool, smoothingBins, targetThreshold: float, bandwidthThreshold: float, frequencyMin_fixed, antennaBeamDirection_DEG: float, tiltAngle_DEG: float):
     if complexFFT == True: # FFT of complex signal
         if offsetRemoval==True:
             signal_mV = signal_mV - np.mean(signal_mV)

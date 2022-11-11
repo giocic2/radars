@@ -20,15 +20,10 @@ from custom_modules.sense2gol_rawdata import txt_extract, txt_generate
 from custom_modules.servo_motor import (define_PWM_pin, rotate_servo_to_angle, shut_down_servo)
 from custom_modules.signal_processing import FFT, FFT_parameters
 
-def main():
+def load_settings():
     # Load settings from *.json file.
     with open('sense2gol_pizero/settings.json') as f:
         settings = json.load(f)
-
-    # Save current *.json
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
-    json_filename = "./sense2gol_pizero/raw_samples/" + timestamp + ".json"
-    shutil.copyfile("./sense2gol_pizero/settings.json",json_filename)
 
     # Sense2GoL settings
     SAMPLING_FREQUENCY = float(settings["sense2gol"]["sampling-frequency-Hz"]) # Hz
@@ -57,7 +52,7 @@ def main():
     FREQUENCY_MIN = settings["signal-processing"]["frequency-min-Hz"] # Hz. Before that frequency, FFT forced to zero.
     FREQUENCY_MAX = settings["signal-processing"]["frequency-max-Hz"] # Hz. After that frequency, FFT forced to zero.
     PRINT_FFT_INFO = settings["signal-processing"]["print-fft-info"] # Boolean.
-    FFT_initialized = FFT_parameters(COMPLEX_FFT, SAMPLING_FREQUENCY, FFT_RESOL, SMOOTHING, SMOOTHING_WINDOW, FREQUENCY_MIN, FREQUENCY_MAX, PRINT_FFT_INFO)
+    FFT_initialized, freqBins_FFT, smoothingBins, minBin, frequencyMin_fixed, maxBin, frequencyMax_fixed = FFT_parameters(COMPLEX_FFT, SAMPLING_FREQUENCY, FFT_RESOL, SMOOTHING, SMOOTHING_WINDOW, FREQUENCY_MIN, FREQUENCY_MAX, PRINT_FFT_INFO)
     OFFSET_REMOVAL = settings["signal-processing"]["offset-removal"] # Boolean.
 
     # Raspberry Pi Zero settings
@@ -87,6 +82,41 @@ def main():
     if STATISTICAL_ANALYSIS == True:
         assert (EPISODES>=3), "Number of episodes should be 3 at least. Please edit \"settings.json\"."
     
+    return SAMPLING_FREQUENCY, lines_to_be_read, ADC_RANGE_BITS, ADC_RANGE_V, COMPLEX_FFT, SMOOTHING, BANDWIDTH_THRESHOLD, HANNING_WINDOWING, ZERO_FORCING, FFT_initialized, freqBins_FFT, smoothingBins, minBin, frequencyMin_fixed, maxBin, OFFSET_REMOVAL, PWM_PIN, PWM_FREQUENCY, RAW_DATA, SHOW_FIGURE, SAVE_PLOTS, PNG_PLOT, PDF_PLOT, PLOT_PATH, REALTIME_MEAS, TARGET_THRESHOLD, DIRECTIONS, antennaBeamDirections_DEG, tiltAngle_DEG, tiltAngle_DEG_str, STATISTICAL_ANALYSIS, EPISODES
+
+def sense2gol_acquisition(tiltAngle_DEG_str, direction_DEG_str, lines_to_be_read):
+    # Boolean variable that will represent 
+    # whether or not the Sense2GoL is connected
+    connected = False
+    # Establish connection to the serial port that your Sense2GoL 
+    # is connected to.
+    LOCATIONS=['/dev/ttyACM0']
+    for device in LOCATIONS:
+        try:
+            print("Trying...",device)
+            S2GL = serial.Serial(device, 128000)
+            break
+        except:
+            print("Failed to connect on ", device)
+
+    # Loop until the Sense2GoL tells us it is ready
+    while not connected:
+        serin = S2GL.read()
+        connected = True
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
+    raw_data_label = timestamp + "__" + tiltAngle_DEG_str + "__" + direction_DEG_str
+    completeFileName = txt_generate(S2GL, lines_to_be_read, raw_data_label)
+    S2GL.close()
+    return completeFileName
+
+def main():
+    SAMPLING_FREQUENCY, lines_to_be_read, ADC_RANGE_BITS, ADC_RANGE_V, COMPLEX_FFT, SMOOTHING, BANDWIDTH_THRESHOLD, HANNING_WINDOWING, ZERO_FORCING, FFT_initialized, freqBins_FFT, smoothingBins, minBin, frequencyMin_fixed, maxBin, OFFSET_REMOVAL, PWM_PIN, PWM_FREQUENCY, RAW_DATA, SHOW_FIGURE, SAVE_PLOTS, PNG_PLOT, PDF_PLOT, PLOT_PATH, REALTIME_MEAS, TARGET_THRESHOLD, DIRECTIONS, antennaBeamDirections_DEG, tiltAngle_DEG, tiltAngle_DEG_str, STATISTICAL_ANALYSIS, EPISODES = load_settings()
+
+    # Save current *.json
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
+    json_filename = "./sense2gol_pizero/output/" + timestamp + ".json"
+    shutil.copyfile("./sense2gol_pizero/settings.json",json_filename)
+    
     # Array to save FFT peak amplitudes and frequencies
     FFT_dBV_peaks = np.zeros((EPISODES, DIRECTIONS))
     centroid_frequencies = np.zeros((EPISODES, DIRECTIONS))
@@ -104,42 +134,19 @@ def main():
             direction_DEG = antennaBeamDirections_DEG[direction]
             direction_DEG_str = "dir" + str("{0:.1f}".format(direction_DEG)) + "deg"
             rotate_servo_to_angle(servo_motor, direction_DEG)
-            # Boolean variable that will represent 
-            # whether or not the Sense2GoL is connected
-            connected = False
-            # Establish connection to the serial port that your Sense2GoL 
-            # is connected to.
-            LOCATIONS=['/dev/ttyACM0']
-            for device in LOCATIONS:
-                try:
-                    print("Trying...",device)
-                    S2GL = serial.Serial(device, 128000)
-                    break
-                except:
-                    print("Failed to connect on ", device)
 
-            # Loop until the Sense2GoL tells us it is ready
-            while not connected:
-                serin = S2GL.read()
-                connected = True
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
-            raw_data_label = timestamp + "__" + tiltAngle_DEG_str + "__" + direction_DEG_str
-            completeFileName = txt_generate(S2GL, lines_to_be_read, raw_data_label)
-            S2GL.close()
+            # Acquisition from serial port
+            completeFileName = sense2gol_acquisition(tiltAngle_DEG_str, direction_DEG_str, lines_to_be_read)
 
             # Extract time-domain signals
-            I_array, Q_array, array_length = txt_extract(completeFileName)
-            I_array_mV = I_array * (ADC_RANGE_V / ADC_RANGE_BITS) * 1000 # mV
-            Q_array_mV = Q_array * (ADC_RANGE_V / ADC_RANGE_BITS) * 1000 # mV
-            complexSignal_mV = np.array(array_length)
-            complexSignal_mV = np.add(I_array_mV, 1j*Q_array_mV)
-            timeAxis_s = np.linspace(start=0, num=array_length, stop=array_length, endpoint=False) / SAMPLING_FREQUENCY
+            I_array_mV, Q_array_mV, complexSignal_mV, timeAxis_s, IQ_arrays_length = txt_extract(completeFileName)
+            
             # Plot of time-domain signals
-            plot_IFI_IFQ(timeAxis_s, I_array_mV, timeAxis_s, Q_array_mV, "time (s)", "voltage (mV)", SHOW_FIGURE, SAVE_PLOTS, PDF_PLOT, PNG_PLOT, PLOT_PATH)
+            plot_IFI_IFQ(timeAxis_s, I_array_mV, Q_array_mV, "time (s)", "voltage (mV)", SHOW_FIGURE, SAVE_PLOTS, PDF_PLOT, PNG_PLOT, PLOT_PATH)
             
             # FFT evaluation
             assert FFT_initialized, "FFT not initialized. Use \'FFT_parameters()\' from signal_processing.py costum module."
-            FFT_dBV_peaks[episode,direction], centroid_frequencies[episode,direction], centroid_start, centroid_stop, centroid_threshold, surface_velocities_table[episode,direction], FFT_dBV, FFT_dBV_smoothed, freqAxis_Hz = FFT(complexSignal_mV, COMPLEX_FFT, array_length, SAMPLING_FREQUENCY, OFFSET_REMOVAL, HANNING_WINDOWING, ZERO_FORCING, SMOOTHING, TARGET_THRESHOLD, BANDWIDTH_THRESHOLD, direction_DEG, tiltAngle_DEG)
+            FFT_dBV_peaks[episode,direction], centroid_frequencies[episode,direction], centroid_start, centroid_stop, centroid_threshold, surface_velocities_table[episode,direction], FFT_dBV, FFT_dBV_smoothed, freqAxis_Hz = FFT(complexSignal_mV, COMPLEX_FFT, IQ_arrays_length, SAMPLING_FREQUENCY, OFFSET_REMOVAL, HANNING_WINDOWING, ZERO_FORCING, SMOOTHING, TARGET_THRESHOLD, BANDWIDTH_THRESHOLD, direction_DEG, tiltAngle_DEG)
             # Plot of FFT
             plot_doppler_centroid(freqAxis_Hz, FFT_dBV, FFT_dBV_smoothed, centroid_start, centroid_stop, centroid_threshold, "frequency (Hz)", "FFT magnitude (dBV)", SHOW_FIGURE, SAVE_PLOTS, PDF_PLOT, PNG_PLOT, PLOT_PATH)
 
@@ -194,7 +201,7 @@ def main():
     shut_down_servo(servo_motor)
     # Delete raw data if not needed
     if not RAW_DATA:
-        raw_samples_files = glob.glob('sense2gol_pizero/raw_samples/*.txt')
+        raw_samples_files = glob.glob('sense2gol_pizero/output/*.txt')
         for txtfile in raw_samples_files:
             os.remove(txtfile)
 

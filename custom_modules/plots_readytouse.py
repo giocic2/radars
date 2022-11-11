@@ -41,7 +41,7 @@ def plot_signal(x_axis_data, y_axis_data, x_axis_label='X axis data (adim.)', y_
     # Clear figure
     plt.clf()
 
-def plot_IFI_IFQ(ifi_x_axis_data, ifi_y_axis_data, ifq_x_axis_data, ifq_y_axis_data, x_axis_label='X axis data (adim.)', y_axis_label='Y axis data (adim.)', showFigure=False, savePlot=True, pdf_plot=True, png_plot=True, plotPath=None):
+def plot_IFI_IFQ(ifiq_x_axis_data, ifi_y_axis_data, ifq_y_axis_data, x_axis_label='X axis data (adim.)', y_axis_label='Y axis data (adim.)', showFigure=False, savePlot=True, pdf_plot=True, png_plot=True, plotPath=None):
     # Output File Paths for Plot
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
     if plotPath == None: # e.g. when standalone script
@@ -56,10 +56,11 @@ def plot_IFI_IFQ(ifi_x_axis_data, ifi_y_axis_data, ifq_x_axis_data, ifq_y_axis_d
     plt.rcParams['axes.linewidth'] = LINE_WIDTH
     plt.rcParams["figure.figsize"] = (FIG_SIZE_X_INCHES, FIG_SIZE_Y_INCHES)
 
-    plt.plot(ifi_x_axis_data, ifi_y_axis_data)
-    plt.plot(ifq_x_axis_data, ifq_y_axis_data)
+    plt.plot(ifiq_x_axis_data, ifi_y_axis_data)
+    plt.plot(ifiq_x_axis_data, ifq_y_axis_data)
     plt.ylabel(y_axis_label)
     plt.xlabel(x_axis_label)
+    plt.legend(['IFI', 'IFQ'])
     plt.grid(True)
     plt.tight_layout()
 

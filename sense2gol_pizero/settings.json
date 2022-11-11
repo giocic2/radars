@@ -2,12 +2,15 @@
     "comment": "Be aware that not all the settings suggested here could be modified as you like. Read comments on sense2gol_pizero.py and Sense2GoL manuals for more information.",
     "sense2gol":{
         "sampling-frequency-Hz":3300,
+        "sampling-frequency-Hz-comment":"To change this value, Sense2GoL must be reprogrammed. See Sense2GoL manual for more information.",
         "number-of-frames":1,
         "samples-per-frame":128,
         "samples-per-frame-comment":"To change this value, Sense2GoL must be reprogrammed. See Sense2GoL manual for more information.",
         "overhead":100,
         "adc-resolution-bits":12,
-        "adc-range-v":3.3
+        "adc-resolution-bits-comment":"Can't be changed. See Sense2GoL manual for more information.",
+        "adc-range-v":3.3,
+        "adc-range-v-comment":"Can't be changed. See Sense2GoL manual for more information."
     },
     "signal-processing":{
         "complex-fft":true,
@@ -30,12 +33,13 @@
         "save-plots":true,
         "png-plot":true,
         "pdf-plot":false,
-        "plot-path":"sense2gol_pizero/raw_samples/",
+        "plot-path":"sense2gol_pizero/output/",
         "realtime-measurements":true,
         "target-threshold-dBV":-90.0,
         "min-beam-angle":-90,
         "max-beam-angle":90,
-        "directions":5
+        "directions":5,
+        "directions-comment":"If only one direction, the default beam angle is 0°."
     },
     "statistical-analysis":{
         "enabling":true,
