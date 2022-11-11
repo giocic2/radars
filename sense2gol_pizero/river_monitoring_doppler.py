@@ -8,28 +8,21 @@ import os
 import sys
 from datetime import datetime
 from doctest import ELLIPSIS_MARKER
-
 import serial
-
 sys.path.insert(1, ".")
 import shutil
 import time
-
+from scipy import stats
 import numpy as np
 from custom_modules.plots_readytouse import plot_doppler_centroid, plot_IFI_IFQ
 from custom_modules.sense2gol_rawdata import txt_extract, txt_generate
-from custom_modules.servo_motor import (define_PWM_pin, rotate_servo_to_angle,
-                                        shut_down_servo)
+from custom_modules.servo_motor import (define_PWM_pin, rotate_servo_to_angle, shut_down_servo)
 from custom_modules.signal_processing import FFT, FFT_parameters
-from scipy import stats
-
 
 def main():
-
     # Load settings from *.json file.
     with open('sense2gol_pizero/settings.json') as f:
         settings = json.load(f)
-    f.close()
 
     # Save current *.json
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
@@ -43,7 +36,7 @@ def main():
     print('Time resolution: {:,}'.format(time_resolution) + ' s')
     FRAMES = int(settings["sense2gol"]["number-of-frames"])
     print("Number of frames (for each direction): ", FRAMES)
-    SAMPLES_PER_FRAME = int(settings["sense2gol"]["samples-per-frame"]) # To effectively change this value, you must reprogram the Sense2GoL board.
+    SAMPLES_PER_FRAME = int(settings["sense2gol"]["samples-per-frame"]) # To change this value, you must reprogram the Sense2GoL board.
     print("Samples per frame (for each direction): ", SAMPLES_PER_FRAME)
     EQ_ACQUISITION_TIME = 1/SAMPLING_FREQUENCY*SAMPLES_PER_FRAME*FRAMES
     print("Equivalent acquisition time (for each direction): {:,}", EQ_ACQUISITION_TIME, ' s')
@@ -122,7 +115,7 @@ def main():
                     S2GL = serial.Serial(device, 128000)
                     break
                 except:
-                    print("Failed to connect on ",device)
+                    print("Failed to connect on ", device)
 
             # Loop until the Sense2GoL tells us it is ready
             while not connected:
@@ -169,10 +162,8 @@ def main():
                         print('{:.3f},'.format(np.std(surface_velocities_table[:episode+1,direction], ddof=1)), end='\t')
                         print('{:.3f},'.format(shapiro_test.statistic), end='\t')
                         print('{:.3f}]'.format(shapiro_test.pvalue))
-    
     # Generate report
     print('Generating report...')
-    time.sleep(1)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
     reportFileName = timestamp + "_report.txt"
     completeFileName = os.path.join(PLOT_PATH, reportFileName)

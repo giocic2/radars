@@ -4,6 +4,7 @@
         "sampling-frequency-Hz":3300,
         "number-of-frames":1,
         "samples-per-frame":128,
+        "samples-per-frame-comment":"To change this value, Sense2GoL must be reprogrammed. See Sense2GoL manual for more information.",
         "overhead":100,
         "adc-resolution-bits":12,
         "adc-range-v":3.3
