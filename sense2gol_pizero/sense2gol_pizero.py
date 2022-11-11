@@ -2,22 +2,25 @@
 # Sense2GoL radar controlled by Raspberry Pi Zero.
 # Launch the script from the root of the GitHub repository.
 
-from doctest import ELLIPSIS_MARKER
-import json
-import serial
-from datetime import datetime
 import glob
+import json
 import os
 import sys
+from datetime import datetime
+from doctest import ELLIPSIS_MARKER
+
+import serial
 
 sys.path.insert(1, ".")
-from custom_modules.signal_processing import FFT_parameters, FFT
-from custom_modules.sense2gol_rawdata import txt_extract, txt_generate
-from custom_modules.plots_readytouse import plot_IFI_IFQ, plot_doppler_centroid
-from custom_modules.servo_motor import define_PWM_pin, rotate_servo_to_angle, shut_down_servo
-import numpy as np
 import shutil
 import time
+
+import numpy as np
+from custom_modules.plots_readytouse import plot_doppler_centroid, plot_IFI_IFQ
+from custom_modules.sense2gol_rawdata import txt_extract, txt_generate
+from custom_modules.servo_motor import (define_PWM_pin, rotate_servo_to_angle,
+                                        shut_down_servo)
+from custom_modules.signal_processing import FFT, FFT_parameters
 from scipy import stats
 
 
@@ -142,9 +145,9 @@ def main():
             
             # FFT evaluation
             assert FFT_initialized, "FFT not initialized. Use \'FFT_parameters()\' from signal_processing.py costum module."
-            FFT_dBV_peaks[episode,direction], centroid_frequencies[episode,direction], centroid_start, centroid_stop, surface_velocities_table[episode,direction], FFT_dBV, FFT_dBV_smoothed, freqAxis_Hz = FFT(complexSignal_mV, COMPLEX_FFT, array_length, SAMPLING_FREQUENCY, OFFSET_REMOVAL, HANNING_WINDOWING, ZERO_FORCING, SMOOTHING, TARGET_THRESHOLD, BANDWIDTH_THRESHOLD, direction_DEG, tiltAngle_DEG)
+            FFT_dBV_peaks[episode,direction], centroid_frequencies[episode,direction], centroid_start, centroid_stop, centroid_threshold, surface_velocities_table[episode,direction], FFT_dBV, FFT_dBV_smoothed, freqAxis_Hz = FFT(complexSignal_mV, COMPLEX_FFT, array_length, SAMPLING_FREQUENCY, OFFSET_REMOVAL, HANNING_WINDOWING, ZERO_FORCING, SMOOTHING, TARGET_THRESHOLD, BANDWIDTH_THRESHOLD, direction_DEG, tiltAngle_DEG)
             # Plot of FFT
-            plot_doppler_centroid(freqAxis_Hz, FFT_dBV, FFT_dBV_smoothed, centroid_start, centroid_stop, "frequency (Hz)", "FFT magnitude (dBV)", SHOW_FIGURE, SAVE_PLOTS, PDF_PLOT, PNG_PLOT, PLOT_PATH)
+            plot_doppler_centroid(freqAxis_Hz, FFT_dBV, FFT_dBV_smoothed, centroid_start, centroid_stop, centroid_threshold, "frequency (Hz)", "FFT magnitude (dBV)", SHOW_FIGURE, SAVE_PLOTS, PDF_PLOT, PNG_PLOT, PLOT_PATH)
 
             if REALTIME_MEAS == True:
                 print('Recap:')

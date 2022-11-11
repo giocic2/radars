@@ -57,7 +57,7 @@ def plot_IFI_IFQ(ifi_x_axis_data, ifi_y_axis_data, ifq_x_axis_data, ifq_y_axis_d
     plt.rcParams["figure.figsize"] = (FIG_SIZE_X_INCHES, FIG_SIZE_Y_INCHES)
 
     plt.plot(ifi_x_axis_data, ifi_y_axis_data)
-    plt.plot(ifq_x_axis_data, ifi_y_axis_data)
+    plt.plot(ifq_x_axis_data, ifq_y_axis_data)
     plt.ylabel(y_axis_label)
     plt.xlabel(x_axis_label)
     plt.grid(True)
