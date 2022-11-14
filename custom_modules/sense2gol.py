@@ -18,15 +18,15 @@ def load_settings():
 
     # Sense2GoL settings
     SAMPLING_FREQUENCY = float(settings["sense2gol"]["sampling-frequency-Hz"]) # Hz
-    print('Sampling frequency: {:,}'.format(SAMPLING_FREQUENCY) + ' Hz')
+    print('Sampling frequency: {:.3e}'.format(SAMPLING_FREQUENCY) + ' Hz')
     time_resolution = 1/SAMPLING_FREQUENCY # s
-    print('Time resolution: {:,}'.format(time_resolution) + ' s')
+    print('Time resolution: {:.3e}'.format(time_resolution) + ' s')
     FRAMES = int(settings["sense2gol"]["number-of-frames"])
     print("Number of frames (for each direction): ", FRAMES)
     SAMPLES_PER_FRAME = int(settings["sense2gol"]["samples-per-frame"]) # To change this value, you must reprogram the Sense2GoL board.
     print("Samples per frame (for each direction): ", SAMPLES_PER_FRAME)
     EQ_ACQUISITION_TIME = 1/SAMPLING_FREQUENCY*SAMPLES_PER_FRAME*FRAMES
-    print("Equivalent acquisition time (for each direction): {:,}", EQ_ACQUISITION_TIME, ' s')
+    print("Equivalent acquisition time (for each direction): {:.3e} s".format(EQ_ACQUISITION_TIME))
     OVERHEAD = int(settings["sense2gol"]["overhead"])
     lines_to_be_read = int((FRAMES * 8 + 1 + 1) * 2 + OVERHEAD)
     ADC_RANGE_BITS = int(2**settings["sense2gol"]["adc-resolution-bits"]) # Bits.
