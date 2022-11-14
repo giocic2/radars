@@ -36,9 +36,9 @@
         "plot-path":"sense2gol_pizero/output/",
         "realtime-measurements":true,
         "target-threshold-dBV":-90.0,
-        "min-beam-angle":-45,
-        "max-beam-angle":45,
-        "directions":5,
+        "min-beam-angle":-30,
+        "max-beam-angle":30,
+        "directions":3,
         "directions-comment":"If only one direction, the default beam angle is 0°."
     },
     "statistical-analysis":{

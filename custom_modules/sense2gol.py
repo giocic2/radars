@@ -155,7 +155,7 @@ def txt_generate(serialDevice, lines_to_be_read, timestamp):
     text_file.close()
     return completeFileName
 
-def serialPort_acquisition(tiltAngle_DEG_str, direction_DEG_str, lines_to_be_read):
+def serialPort_acquisition(tiltAngle_DEG_str, episode, direction_DEG_str, lines_to_be_read):
     # Boolean variable that will represent 
     # whether or not the Sense2GoL is connected
     connected = False
@@ -175,7 +175,8 @@ def serialPort_acquisition(tiltAngle_DEG_str, direction_DEG_str, lines_to_be_rea
         serin = S2GL.read()
         connected = True
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
-    raw_data_label = timestamp + "__" + tiltAngle_DEG_str + "__" + direction_DEG_str
+    episode_str = "episode" + str(episode)
+    raw_data_label = timestamp + "__" + tiltAngle_DEG_str + "__" + episode_str + "__" + direction_DEG_str
     completeFileName = txt_generate(S2GL, lines_to_be_read, raw_data_label)
     S2GL.close()
     return completeFileName
