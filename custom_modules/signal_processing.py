@@ -26,7 +26,7 @@ def FFT_parameters(complexFFT: bool, samplingFrequency: float, resolution: float
             print('Size of smoothing window (moving average): {:,d} bins, {:.1f} Hz'.format(smoothingBins, smoothingWindow))
         print("Minimum frequency of interest: {:.1f} Hz".format(frequencyMin_fixed))
         print("Maximum frequency of interest: {:.1f} Hz".format(frequencyMax_fixed))
-    return True, freqBins_FFT, smoothingBins, minBin, maxBin
+    return True, freqBins_FFT, smoothingBins, minBin, frequencyMin_fixed, maxBin, frequencyMax_fixed
 
 def centroid_estimation(inputArray, bandwidthThreshold, freqAxis_Hz, frequencyMin, FFT_dBV_max, freqBins_FFT):
     maxValue = np.amax(inputArray)
