@@ -97,7 +97,7 @@ def FFT(signal_mV, complexFFT: bool, totalSamples: int, samplingFrequency: float
         raise ValueError
     else:
         # Doppler centroid
-        centroid_frequency, centroid_start, centroid_stop, centroid_threshold = centroid_estimation(FFT_dBV_smoothed, bandwidthThreshold, freqAxis_Hz, frequencyMin_fixed, FFT_dBV_max)
+        centroid_frequency, centroid_start, centroid_stop, centroid_threshold = centroid_estimation(FFT_dBV_smoothed, bandwidthThreshold, freqAxis_Hz, frequencyMin_fixed, FFT_dBV_max, freqBins_FFT)
     surface_velocity = evaluate_surface_velocity(centroid_frequency, antennaBeamDirection_DEG, tiltAngle_DEG)
     return FFT_dBV_max, centroid_frequency, centroid_start, centroid_stop, centroid_threshold, surface_velocity, FFT_dBV, FFT_dBV_smoothed, freqAxis_Hz
 
