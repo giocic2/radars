@@ -1,5 +1,12 @@
-sense2gol_pizero/raw-samples/*.txt
-sense2gol_pizero/raw-samples/*.json
-sense2gol_pizero/raw-samples/*.png
-sense2gol_pizero/raw-samples/*.pdf
+sense2gol_pizero/output/*.txt
+sense2gol_pizero/output/*.json
+sense2gol_pizero/output/*.png
+sense2gol_pizero/output/*.pdf
+
+unipg_prototype/output/*.txt
+unipg_prototype/output/*.csv
+unipg_prototype/output/*.json
+unipg_prototype/output/*.png
+unipg_prototype/output/*.pdf
+
 custom_modules/__pycache__/
