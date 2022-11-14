@@ -175,7 +175,7 @@ def serialPort_acquisition(tiltAngle_DEG_str, episode, EPISODES, direction_DEG_s
         serin = S2GL.read()
         connected = True
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
-    episode_str = "episode" + str(episode) + "of" + str(EPISODES)
+    episode_str = "episode" + str(episode+1) + "of" + str(EPISODES)
     raw_data_label = timestamp + "__" + tiltAngle_DEG_str + "__" + episode_str + "__" + direction_DEG_str
     completeFileName = txt_generate(S2GL, lines_to_be_read, raw_data_label)
     S2GL.close()
