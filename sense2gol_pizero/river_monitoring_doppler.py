@@ -46,7 +46,7 @@ def main():
             completeFileName = serialPort_acquisition(tiltAngle_DEG_str, direction_DEG_str, lines_to_be_read)
 
             # Extract time-domain signals
-            I_array_mV, Q_array_mV, complexSignal_mV, timeAxis_s, IQ_arrays_length = txt_extract(completeFileName)
+            I_array_mV, Q_array_mV, complexSignal_mV, timeAxis_s, IQ_arrays_length = txt_extract(completeFileName, ADC_RANGE_BITS, ADC_RANGE_V)
             
             # Plot of time-domain signals
             plot_IFI_IFQ(timeAxis_s, I_array_mV, Q_array_mV, "time (s)", "voltage (mV)", SHOW_FIGURE, SAVE_PLOTS, PDF_PLOT, PNG_PLOT, PLOT_PATH)

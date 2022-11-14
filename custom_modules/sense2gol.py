@@ -76,7 +76,7 @@ def load_settings():
     
     return SAMPLING_FREQUENCY, lines_to_be_read, ADC_RANGE_BITS, ADC_RANGE_V, COMPLEX_FFT, SMOOTHING, BANDWIDTH_THRESHOLD, HANNING_WINDOWING, ZERO_FORCING, FFT_initialized, freqBins_FFT, smoothingBins, minBin, frequencyMin_fixed, maxBin, OFFSET_REMOVAL, PWM_PIN, PWM_FREQUENCY, RAW_DATA, SHOW_FIGURE, SAVE_PLOTS, PNG_PLOT, PDF_PLOT, PLOT_PATH, REALTIME_MEAS, TARGET_THRESHOLD, DIRECTIONS, antennaBeamDirections_DEG, tiltAngle_DEG, tiltAngle_DEG_str, STATISTICAL_ANALYSIS, EPISODES
 
-def txt_extract(file_name):
+def txt_extract(file_name, ADC_RANGE_BITS, ADC_RANGE_V):
     # Extract raw samples from txt file
     text_file = open(file_name, 'rb')
     temp_line = text_file.readline()
