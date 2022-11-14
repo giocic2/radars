@@ -3,116 +3,23 @@
 # Launch the script from the root of the GitHub repository.
 
 import glob
-import json
 import os
 import sys
 from datetime import datetime
-from doctest import ELLIPSIS_MARKER
-import serial
 sys.path.insert(1, ".")
 import shutil
-import time
 from scipy import stats
 import numpy as np
 
 from custom_modules.plots_readytouse import plot_doppler_centroid, plot_IFI_IFQ
-from custom_modules.sense2gol_rawdata import txt_extract, txt_generate
-from custom_modules.servo_motor import (define_PWM_pin, rotate_servo_to_angle, shut_down_servo)
-from custom_modules.signal_processing import FFT, FFT_parameters
-
-def load_settings():
-    # Load settings from *.json file.
-    with open('sense2gol_pizero/settings.json') as f:
-        settings = json.load(f)
-
-    # Sense2GoL settings
-    SAMPLING_FREQUENCY = float(settings["sense2gol"]["sampling-frequency-Hz"]) # Hz
-    print('Sampling frequency: {:,}'.format(SAMPLING_FREQUENCY) + ' Hz')
-    time_resolution = 1/SAMPLING_FREQUENCY # s
-    print('Time resolution: {:,}'.format(time_resolution) + ' s')
-    FRAMES = int(settings["sense2gol"]["number-of-frames"])
-    print("Number of frames (for each direction): ", FRAMES)
-    SAMPLES_PER_FRAME = int(settings["sense2gol"]["samples-per-frame"]) # To change this value, you must reprogram the Sense2GoL board.
-    print("Samples per frame (for each direction): ", SAMPLES_PER_FRAME)
-    EQ_ACQUISITION_TIME = 1/SAMPLING_FREQUENCY*SAMPLES_PER_FRAME*FRAMES
-    print("Equivalent acquisition time (for each direction): {:,}", EQ_ACQUISITION_TIME, ' s')
-    OVERHEAD = int(settings["sense2gol"]["overhead"])
-    lines_to_be_read = int((FRAMES * 8 + 1 + 1) * 2 + OVERHEAD)
-    ADC_RANGE_BITS = int(2**settings["sense2gol"]["adc-resolution-bits"]) # Bits.
-    ADC_RANGE_V = settings["sense2gol"]["adc-range-v"] # Volts.
-
-    # Signal processing settings
-    COMPLEX_FFT = settings["signal-processing"]["complex-fft"] # Boolean. If True, the FFT of a complex signal (two-sided spectrum) is computed.
-    FFT_RESOL = settings["signal-processing"]["fft-resolution-Hz"] # Hz
-    SMOOTHING = settings["signal-processing"]["fft-smoothing"] # Boolean.
-    SMOOTHING_WINDOW = settings["signal-processing"]["smoothing-window-Hz"] # Hz. Smoothing of FFT spectrum done with moving average.
-    BANDWIDTH_THRESHOLD = settings["signal-processing"]["bandwidth-threshold-dB"] # dB. Parameter that defines the bandwidth of the Doppler centroid, with respect to the maximum value.
-    HANNING_WINDOWING = settings["signal-processing"]["hanning-windowing"] # Boolean. Enable Hanning windowing on samples before FFT computation.
-    ZERO_FORCING = settings["signal-processing"]["zero-forcing"] # Boolean. Enable forcing FFT to zero, everywhere except between FREQUENCY_MIN and FREQUENCY_MAX.
-    FREQUENCY_MIN = settings["signal-processing"]["frequency-min-Hz"] # Hz. Before that frequency, FFT forced to zero.
-    FREQUENCY_MAX = settings["signal-processing"]["frequency-max-Hz"] # Hz. After that frequency, FFT forced to zero.
-    PRINT_FFT_INFO = settings["signal-processing"]["print-fft-info"] # Boolean.
-    FFT_initialized, freqBins_FFT, smoothingBins, minBin, frequencyMin_fixed, maxBin, frequencyMax_fixed = FFT_parameters(COMPLEX_FFT, SAMPLING_FREQUENCY, FFT_RESOL, SMOOTHING, SMOOTHING_WINDOW, FREQUENCY_MIN, FREQUENCY_MAX, PRINT_FFT_INFO)
-    OFFSET_REMOVAL = settings["signal-processing"]["offset-removal"] # Boolean.
-
-    # Raspberry Pi Zero settings
-    PWM_PIN = settings["raspberry-pi-zero"]["pwm-board-pin"] # Board pin number.
-    PWM_FREQUENCY = settings["raspberry-pi-zero"]["pwm-frequency"] # 50 Hz default.
-    RAW_DATA = settings["raspberry-pi-zero"]["raw-data"] # Boolean. Data stored in *.txt files.
-    SHOW_FIGURE = settings["raspberry-pi-zero"]["show-figure"] # Boolean. Disable if running on Raspberry Pi Zero without GUI.
-    SAVE_PLOTS = settings["raspberry-pi-zero"]["save-plots"] # Boolean. For each acquisition, the plots saved in PNG or PDF format.
-    PNG_PLOT = settings["raspberry-pi-zero"]["png-plot"] # Boolean.
-    PDF_PLOT = settings["raspberry-pi-zero"]["pdf-plot"] # Boolean. 
-    PLOT_PATH = settings["raspberry-pi-zero"]["plot-path"]
-    REALTIME_MEAS = settings["raspberry-pi-zero"]["realtime-measurements"] # Boolean. Real-time measurements of Doppler velocity.
-    TARGET_THRESHOLD = settings["raspberry-pi-zero"]["target-threshold-dBV"] # dBV. If FFT maximum is under this value, target not detected.
-    MIN_BEAM_ANGLE = settings["raspberry-pi-zero"]["min-beam-angle"] # Degree. Angle between broadside direction and beam direction.
-    MAX_BEAM_ANGLE = settings["raspberry-pi-zero"]["max-beam-angle"] # Degree. Angle between broadside direction and beam direction.
-    DIRECTIONS = settings["raspberry-pi-zero"]["directions"]
-    if DIRECTIONS == 1: # Only broadside direction
-        antennaBeamDirections_DEG = np.array([0])
-    else:
-        antennaBeamDirections_DEG = np.linspace(start=MIN_BEAM_ANGLE, stop=MAX_BEAM_ANGLE, num=DIRECTIONS, endpoint=True) # Degrees.
-    tiltAngle_DEG = 45 # Degrees.
-    tiltAngle_DEG_str = "tilt" + str("{0:.1f}".format(tiltAngle_DEG)) + "deg"
-
-    # Statistical analysis settings
-    STATISTICAL_ANALYSIS = settings["statistical-analysis"]["enabling"] # Boolean. Enable/disable statystical analysis.
-    EPISODES = int(settings["statistical-analysis"]["episodes-number"]) # Number of episodes for the statystical analysis.
-    if STATISTICAL_ANALYSIS == True:
-        assert (EPISODES>=3), "Number of episodes should be 3 at least. Please edit \"settings.json\"."
-    
-    return SAMPLING_FREQUENCY, lines_to_be_read, ADC_RANGE_BITS, ADC_RANGE_V, COMPLEX_FFT, SMOOTHING, BANDWIDTH_THRESHOLD, HANNING_WINDOWING, ZERO_FORCING, FFT_initialized, freqBins_FFT, smoothingBins, minBin, frequencyMin_fixed, maxBin, OFFSET_REMOVAL, PWM_PIN, PWM_FREQUENCY, RAW_DATA, SHOW_FIGURE, SAVE_PLOTS, PNG_PLOT, PDF_PLOT, PLOT_PATH, REALTIME_MEAS, TARGET_THRESHOLD, DIRECTIONS, antennaBeamDirections_DEG, tiltAngle_DEG, tiltAngle_DEG_str, STATISTICAL_ANALYSIS, EPISODES
-
-def sense2gol_acquisition(tiltAngle_DEG_str, direction_DEG_str, lines_to_be_read):
-    # Boolean variable that will represent 
-    # whether or not the Sense2GoL is connected
-    connected = False
-    # Establish connection to the serial port that your Sense2GoL 
-    # is connected to.
-    LOCATIONS=['/dev/ttyACM0']
-    for device in LOCATIONS:
-        try:
-            print("Trying...",device)
-            S2GL = serial.Serial(device, 128000)
-            break
-        except:
-            print("Failed to connect on ", device)
-
-    # Loop until the Sense2GoL tells us it is ready
-    while not connected:
-        serin = S2GL.read()
-        connected = True
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
-    raw_data_label = timestamp + "__" + tiltAngle_DEG_str + "__" + direction_DEG_str
-    completeFileName = txt_generate(S2GL, lines_to_be_read, raw_data_label)
-    S2GL.close()
-    return completeFileName
+from custom_modules.sense2gol import txt_extract, serialPort_acquisition, load_settings
+from custom_modules.servo_motor import define_PWM_pin, rotate_servo_to_angle, shut_down_servo
+from custom_modules.signal_processing import FFT
 
 def main():
     SAMPLING_FREQUENCY, lines_to_be_read, ADC_RANGE_BITS, ADC_RANGE_V, COMPLEX_FFT, SMOOTHING, BANDWIDTH_THRESHOLD, HANNING_WINDOWING, ZERO_FORCING, FFT_initialized, freqBins_FFT, smoothingBins, minBin, frequencyMin_fixed, maxBin, OFFSET_REMOVAL, PWM_PIN, PWM_FREQUENCY, RAW_DATA, SHOW_FIGURE, SAVE_PLOTS, PNG_PLOT, PDF_PLOT, PLOT_PATH, REALTIME_MEAS, TARGET_THRESHOLD, DIRECTIONS, antennaBeamDirections_DEG, tiltAngle_DEG, tiltAngle_DEG_str, STATISTICAL_ANALYSIS, EPISODES = load_settings()
 
-    # Save current *.json
+    # Save current *.json settings file for offline analysis
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
     json_filename = "./sense2gol_pizero/output/" + timestamp + ".json"
     shutil.copyfile("./sense2gol_pizero/settings.json",json_filename)
@@ -136,7 +43,7 @@ def main():
             rotate_servo_to_angle(servo_motor, direction_DEG)
 
             # Acquisition from serial port
-            completeFileName = sense2gol_acquisition(tiltAngle_DEG_str, direction_DEG_str, lines_to_be_read)
+            completeFileName = serialPort_acquisition(tiltAngle_DEG_str, direction_DEG_str, lines_to_be_read)
 
             # Extract time-domain signals
             I_array_mV, Q_array_mV, complexSignal_mV, timeAxis_s, IQ_arrays_length = txt_extract(completeFileName)
@@ -145,11 +52,11 @@ def main():
             plot_IFI_IFQ(timeAxis_s, I_array_mV, Q_array_mV, "time (s)", "voltage (mV)", SHOW_FIGURE, SAVE_PLOTS, PDF_PLOT, PNG_PLOT, PLOT_PATH)
             
             # FFT evaluation
-            assert FFT_initialized, "FFT not initialized. Use \'FFT_parameters()\' from signal_processing.py costum module."
-            FFT_dBV_peaks[episode,direction], centroid_frequencies[episode,direction], centroid_start, centroid_stop, centroid_threshold, surface_velocities_table[episode,direction], FFT_dBV, FFT_dBV_smoothed, freqAxis_Hz = FFT(complexSignal_mV, COMPLEX_FFT, IQ_arrays_length, SAMPLING_FREQUENCY, OFFSET_REMOVAL, HANNING_WINDOWING, ZERO_FORCING, SMOOTHING, TARGET_THRESHOLD, BANDWIDTH_THRESHOLD, direction_DEG, tiltAngle_DEG)
+            FFT_dBV_peaks[episode,direction], centroid_frequencies[episode,direction], centroid_start, centroid_stop, centroid_threshold, surface_velocities_table[episode,direction], FFT_dBV, FFT_dBV_smoothed, freqAxis_Hz = FFT(complexSignal_mV, COMPLEX_FFT, IQ_arrays_length, SAMPLING_FREQUENCY, OFFSET_REMOVAL, HANNING_WINDOWING, ZERO_FORCING, SMOOTHING, TARGET_THRESHOLD, BANDWIDTH_THRESHOLD, direction_DEG, tiltAngle_DEG, FFT_initialized)
             # Plot of FFT
             plot_doppler_centroid(freqAxis_Hz, FFT_dBV, FFT_dBV_smoothed, centroid_start, centroid_stop, centroid_threshold, "frequency (Hz)", "FFT magnitude (dBV)", SHOW_FIGURE, SAVE_PLOTS, PDF_PLOT, PNG_PLOT, PLOT_PATH)
 
+            # Console log of real-time measurements
             if REALTIME_MEAS == True:
                 print('Recap:')
                 print('[EP.,\tDEG,\tdBV,\tHz,\tm/s]')
@@ -170,7 +77,7 @@ def main():
                         print('{:.3f},'.format(np.std(surface_velocities_table[:episode+1,direction], ddof=1)), end='\t')
                         print('{:.3f},'.format(shapiro_test.statistic), end='\t')
                         print('{:.3f}]'.format(shapiro_test.pvalue))
-    # Generate report
+    # Report on *.txt file
     print('Generating report...')
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
     reportFileName = timestamp + "_report.txt"
@@ -198,6 +105,7 @@ def main():
                     file.write('{:.3f},\t'.format(shapiro_test.statistic))
                     file.write('{:.3f}]\n'.format(shapiro_test.pvalue))
     print('Done.')
+    # End servo motor control
     shut_down_servo(servo_motor)
     # Delete raw data if not needed
     if not RAW_DATA:

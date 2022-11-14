@@ -63,7 +63,8 @@ def evaluate_surface_velocity(centroid_frequency, antennaBeamDirection_DEG, tilt
     print('Resulting surface velocity: {:.3f}'.format((3e8 * centroid_frequency) / (2 * (24.125e9) * np.cos(np.deg2rad(antennaBeamDirection_DEG) * np.cos(tiltAngle_DEG)))), ' m/s')
     return surface_velocity
 
-def FFT(signal_mV, complexFFT: bool, totalSamples: int, samplingFrequency: float, freqBins_FFT, offsetRemoval: bool, hanningWindowing: bool, zeroForcing: bool, minBin, maxBin, smoothing: bool, smoothingBins, targetThreshold: float, bandwidthThreshold: float, frequencyMin_fixed, antennaBeamDirection_DEG: float, tiltAngle_DEG: float):
+def FFT(signal_mV, complexFFT: bool, totalSamples: int, samplingFrequency: float, freqBins_FFT, offsetRemoval: bool, hanningWindowing: bool, zeroForcing: bool, minBin, maxBin, smoothing: bool, smoothingBins, targetThreshold: float, bandwidthThreshold: float, frequencyMin_fixed, antennaBeamDirection_DEG: float, tiltAngle_DEG: float, FFT_initialized=False):
+    assert FFT_initialized, "FFT not initialized. Use \'FFT_parameters()\' from signal_processing.py costum module."
     if complexFFT == True: # FFT of complex signal
         if offsetRemoval==True:
             signal_mV = signal_mV - np.mean(signal_mV)

@@ -3,12 +3,78 @@ import itertools
 import re
 import os
 import easygui
+import serial
 import sys
 sys.path.insert(1, ".")
 sys.path.insert(1, "../..")
 from custom_modules.plots_readytouse import plot_paper_format
 import json
 from custom_modules.signal_processing import FFT_parameters, FFT
+from datetime import datetime
+
+def load_settings():
+    # Load settings from *.json file.
+    with open('sense2gol_pizero/settings.json') as f:
+        settings = json.load(f)
+
+    # Sense2GoL settings
+    SAMPLING_FREQUENCY = float(settings["sense2gol"]["sampling-frequency-Hz"]) # Hz
+    print('Sampling frequency: {:,}'.format(SAMPLING_FREQUENCY) + ' Hz')
+    time_resolution = 1/SAMPLING_FREQUENCY # s
+    print('Time resolution: {:,}'.format(time_resolution) + ' s')
+    FRAMES = int(settings["sense2gol"]["number-of-frames"])
+    print("Number of frames (for each direction): ", FRAMES)
+    SAMPLES_PER_FRAME = int(settings["sense2gol"]["samples-per-frame"]) # To change this value, you must reprogram the Sense2GoL board.
+    print("Samples per frame (for each direction): ", SAMPLES_PER_FRAME)
+    EQ_ACQUISITION_TIME = 1/SAMPLING_FREQUENCY*SAMPLES_PER_FRAME*FRAMES
+    print("Equivalent acquisition time (for each direction): {:,}", EQ_ACQUISITION_TIME, ' s')
+    OVERHEAD = int(settings["sense2gol"]["overhead"])
+    lines_to_be_read = int((FRAMES * 8 + 1 + 1) * 2 + OVERHEAD)
+    ADC_RANGE_BITS = int(2**settings["sense2gol"]["adc-resolution-bits"]) # Bits.
+    ADC_RANGE_V = settings["sense2gol"]["adc-range-v"] # Volts.
+
+    # Signal processing settings
+    COMPLEX_FFT = settings["signal-processing"]["complex-fft"] # Boolean. If True, the FFT of a complex signal (two-sided spectrum) is computed.
+    FFT_RESOL = settings["signal-processing"]["fft-resolution-Hz"] # Hz
+    SMOOTHING = settings["signal-processing"]["fft-smoothing"] # Boolean.
+    SMOOTHING_WINDOW = settings["signal-processing"]["smoothing-window-Hz"] # Hz. Smoothing of FFT spectrum done with moving average.
+    BANDWIDTH_THRESHOLD = settings["signal-processing"]["bandwidth-threshold-dB"] # dB. Parameter that defines the bandwidth of the Doppler centroid, with respect to the maximum value.
+    HANNING_WINDOWING = settings["signal-processing"]["hanning-windowing"] # Boolean. Enable Hanning windowing on samples before FFT computation.
+    ZERO_FORCING = settings["signal-processing"]["zero-forcing"] # Boolean. Enable forcing FFT to zero, everywhere except between FREQUENCY_MIN and FREQUENCY_MAX.
+    FREQUENCY_MIN = settings["signal-processing"]["frequency-min-Hz"] # Hz. Before that frequency, FFT forced to zero.
+    FREQUENCY_MAX = settings["signal-processing"]["frequency-max-Hz"] # Hz. After that frequency, FFT forced to zero.
+    PRINT_FFT_INFO = settings["signal-processing"]["print-fft-info"] # Boolean.
+    FFT_initialized, freqBins_FFT, smoothingBins, minBin, frequencyMin_fixed, maxBin, frequencyMax_fixed = FFT_parameters(COMPLEX_FFT, SAMPLING_FREQUENCY, FFT_RESOL, SMOOTHING, SMOOTHING_WINDOW, FREQUENCY_MIN, FREQUENCY_MAX, PRINT_FFT_INFO)
+    OFFSET_REMOVAL = settings["signal-processing"]["offset-removal"] # Boolean.
+
+    # Raspberry Pi Zero settings
+    PWM_PIN = settings["raspberry-pi-zero"]["pwm-board-pin"] # Board pin number.
+    PWM_FREQUENCY = settings["raspberry-pi-zero"]["pwm-frequency"] # 50 Hz default.
+    RAW_DATA = settings["raspberry-pi-zero"]["raw-data"] # Boolean. Data stored in *.txt files.
+    SHOW_FIGURE = settings["raspberry-pi-zero"]["show-figure"] # Boolean. Disable if running on Raspberry Pi Zero without GUI.
+    SAVE_PLOTS = settings["raspberry-pi-zero"]["save-plots"] # Boolean. For each acquisition, the plots saved in PNG or PDF format.
+    PNG_PLOT = settings["raspberry-pi-zero"]["png-plot"] # Boolean.
+    PDF_PLOT = settings["raspberry-pi-zero"]["pdf-plot"] # Boolean. 
+    PLOT_PATH = settings["raspberry-pi-zero"]["plot-path"]
+    REALTIME_MEAS = settings["raspberry-pi-zero"]["realtime-measurements"] # Boolean. Real-time measurements of Doppler velocity.
+    TARGET_THRESHOLD = settings["raspberry-pi-zero"]["target-threshold-dBV"] # dBV. If FFT maximum is under this value, target not detected.
+    MIN_BEAM_ANGLE = settings["raspberry-pi-zero"]["min-beam-angle"] # Degree. Angle between broadside direction and beam direction.
+    MAX_BEAM_ANGLE = settings["raspberry-pi-zero"]["max-beam-angle"] # Degree. Angle between broadside direction and beam direction.
+    DIRECTIONS = settings["raspberry-pi-zero"]["directions"]
+    if DIRECTIONS == 1: # Only broadside direction
+        antennaBeamDirections_DEG = np.array([0])
+    else:
+        antennaBeamDirections_DEG = np.linspace(start=MIN_BEAM_ANGLE, stop=MAX_BEAM_ANGLE, num=DIRECTIONS, endpoint=True) # Degrees.
+    tiltAngle_DEG = 45 # Degrees.
+    tiltAngle_DEG_str = "tilt" + str("{0:.1f}".format(tiltAngle_DEG)) + "deg"
+
+    # Statistical analysis settings
+    STATISTICAL_ANALYSIS = settings["statistical-analysis"]["enabling"] # Boolean. Enable/disable statystical analysis.
+    EPISODES = int(settings["statistical-analysis"]["episodes-number"]) # Number of episodes for the statystical analysis.
+    if STATISTICAL_ANALYSIS == True:
+        assert (EPISODES>=3), "Number of episodes should be 3 at least. Please edit \"settings.json\"."
+    
+    return SAMPLING_FREQUENCY, lines_to_be_read, ADC_RANGE_BITS, ADC_RANGE_V, COMPLEX_FFT, SMOOTHING, BANDWIDTH_THRESHOLD, HANNING_WINDOWING, ZERO_FORCING, FFT_initialized, freqBins_FFT, smoothingBins, minBin, frequencyMin_fixed, maxBin, OFFSET_REMOVAL, PWM_PIN, PWM_FREQUENCY, RAW_DATA, SHOW_FIGURE, SAVE_PLOTS, PNG_PLOT, PDF_PLOT, PLOT_PATH, REALTIME_MEAS, TARGET_THRESHOLD, DIRECTIONS, antennaBeamDirections_DEG, tiltAngle_DEG, tiltAngle_DEG_str, STATISTICAL_ANALYSIS, EPISODES
 
 def txt_extract(file_name):
     # Extract raw samples from txt file
@@ -88,6 +154,31 @@ def txt_generate(serialDevice, lines_to_be_read, timestamp):
     print("Raw data acquisition completed.")
     # close the serial connection and text file
     text_file.close()
+    return completeFileName
+
+def serialPort_acquisition(tiltAngle_DEG_str, direction_DEG_str, lines_to_be_read):
+    # Boolean variable that will represent 
+    # whether or not the Sense2GoL is connected
+    connected = False
+    # Establish connection to the serial port that your Sense2GoL 
+    # is connected to.
+    LOCATIONS=['/dev/ttyACM0']
+    for device in LOCATIONS:
+        try:
+            print("Trying...",device)
+            S2GL = serial.Serial(device, 128000)
+            break
+        except:
+            print("Failed to connect on ", device)
+
+    # Loop until the Sense2GoL tells us it is ready
+    while not connected:
+        serin = S2GL.read()
+        connected = True
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
+    raw_data_label = timestamp + "__" + tiltAngle_DEG_str + "__" + direction_DEG_str
+    completeFileName = txt_generate(S2GL, lines_to_be_read, raw_data_label)
+    S2GL.close()
     return completeFileName
 
 if __name__ == "__main__":
