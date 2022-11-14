@@ -52,7 +52,7 @@ def main():
             plot_IFI_IFQ(timeAxis_s, I_array_mV, Q_array_mV, "time (s)", "voltage (mV)", SHOW_FIGURE, SAVE_PLOTS, PDF_PLOT, PNG_PLOT, PLOT_PATH)
             
             # FFT evaluation
-            FFT_dBV_peaks[episode,direction], centroid_frequencies[episode,direction], centroid_start, centroid_stop, centroid_threshold, surface_velocities_table[episode,direction], FFT_dBV, FFT_dBV_smoothed, freqAxis_Hz = FFT(complexSignal_mV, COMPLEX_FFT, IQ_arrays_length, SAMPLING_FREQUENCY, OFFSET_REMOVAL, HANNING_WINDOWING, ZERO_FORCING, SMOOTHING, TARGET_THRESHOLD, BANDWIDTH_THRESHOLD, direction_DEG, tiltAngle_DEG, FFT_initialized)
+            FFT_dBV_peaks[episode,direction], centroid_frequencies[episode,direction], centroid_start, centroid_stop, centroid_threshold, surface_velocities_table[episode,direction], FFT_dBV, FFT_dBV_smoothed, freqAxis_Hz = FFT(complexSignal_mV, COMPLEX_FFT, IQ_arrays_length, SAMPLING_FREQUENCY, freqBins_FFT, OFFSET_REMOVAL, HANNING_WINDOWING, ZERO_FORCING, minBin, maxBin, SMOOTHING, smoothingBins, TARGET_THRESHOLD, BANDWIDTH_THRESHOLD, frequencyMin_fixed, direction_DEG, tiltAngle_DEG, FFT_initialized)
             # Plot of FFT
             plot_doppler_centroid(freqAxis_Hz, FFT_dBV, FFT_dBV_smoothed, centroid_start, centroid_stop, centroid_threshold, "frequency (Hz)", "FFT magnitude (dBV)", SHOW_FIGURE, SAVE_PLOTS, PDF_PLOT, PNG_PLOT, PLOT_PATH)
 
