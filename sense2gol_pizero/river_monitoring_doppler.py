@@ -43,7 +43,7 @@ def main():
             rotate_servo_to_angle(servo_motor, direction_DEG)
 
             # Acquisition from serial port
-            completeFileName = serialPort_acquisition(tiltAngle_DEG_str, episode, direction_DEG_str, lines_to_be_read)
+            completeFileName = serialPort_acquisition(tiltAngle_DEG_str, episode, EPISODES, direction_DEG_str, lines_to_be_read)
 
             # Extract time-domain signals
             I_array_mV, Q_array_mV, complexSignal_mV, timeAxis_s, IQ_arrays_length = txt_extract(completeFileName, ADC_RANGE_BITS, ADC_RANGE_V, SAMPLING_FREQUENCY)
