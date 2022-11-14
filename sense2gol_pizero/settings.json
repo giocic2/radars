@@ -1,5 +1,9 @@
 {
     "comment": "Be aware that not all the settings suggested here could be modified as you like. Read comments on sense2gol_pizero.py and Sense2GoL manuals for more information.",
+    "radar-installation":{
+        "height-from-water-level": 0,
+        "height-from-ground-level-comment":"Needs to be measured manually and the valued registered here before starting the radar."
+    },
     "sense2gol":{
         "sampling-frequency-Hz":3300,
         "sampling-frequency-Hz-comment":"To change this value, Sense2GoL must be reprogrammed. See Sense2GoL manual for more information.",

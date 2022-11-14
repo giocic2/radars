@@ -1,6 +1,5 @@
 #!/usr/bin/python
-# Sense2GoL radar controlled by Raspberry Pi Zero.
-# Launch the script from the root of the GitHub repository.
+# River monitoring using Sense2GoL Doppler radar
 
 import glob
 import os
