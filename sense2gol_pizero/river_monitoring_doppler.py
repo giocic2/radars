@@ -93,7 +93,7 @@ def main():
                     file.write('{:.1f},\t'.format(antennaBeamDirections_DEG[direction]))
                     file.write('{:.1f},\t'.format(FFT_dBV_peaks[episode,direction]))
                     file.write('{:.1f},\t'.format(centroid_frequencies[episode,direction]))
-                    file.write('{:.1f}]\n'.format(surface_velocities_table[episode,direction]))
+                    file.write('{:.3f}]\n'.format(surface_velocities_table[episode,direction]))
             if STATISTICAL_ANALYSIS == True:
                 file.write('### STATISTICAL ANALYSIS (@ episode {:d} of {:d}) ###\n'.format(episode+1, EPISODES))
                 file.write('[scanning angle, mean value, std.dev., S.W. test statistic, S.W. test p-value]\n')
