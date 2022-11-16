@@ -27,7 +27,12 @@
         "frequency-min-Hz":-1000,
         "frequency-max-Hz":1000,
         "print-fft-info":true,
-        "offset-removal":true
+        "offset-removal":true,
+        "spectrogram-enabled":true,
+        "stft-overlapping-samples":0,
+        "stft-samples-in-segment": 256,
+        "stft-bins": 1024,
+        "stft-bins-comment":"Integer number power of 2."
     },
     "raspberry-pi-zero":{
         "pwm-board-pin":7,

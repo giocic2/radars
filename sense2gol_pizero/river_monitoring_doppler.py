@@ -10,13 +10,13 @@ import shutil
 from scipy import stats
 import numpy as np
 
-from custom_modules.plots_readytouse import plot_doppler_centroid, plot_IFI_IFQ
+from custom_modules.plots_readytouse import plot_doppler_centroid, plot_IFI_IFQ, plot_spectrogram
 from custom_modules.sense2gol import txt_extract, serialPort_acquisition, load_settings
 from custom_modules.servo_motor import define_PWM_pin, rotate_servo_to_angle, shut_down_servo
 from custom_modules.signal_processing import FFT
 
 def main():
-    SAMPLING_FREQUENCY, lines_to_be_read, ADC_RANGE_BITS, ADC_RANGE_V, COMPLEX_FFT, SMOOTHING, BANDWIDTH_THRESHOLD, HANNING_WINDOWING, ZERO_FORCING, FFT_initialized, freqBins_FFT, smoothingBins, minBin, frequencyMin_fixed, maxBin, frequencyMax_fixed, OFFSET_REMOVAL, PWM_PIN, PWM_FREQUENCY, RAW_DATA, SHOW_FIGURE, SAVE_PLOTS, PNG_PLOT, PDF_PLOT, PLOT_PATH, REALTIME_MEAS, TARGET_THRESHOLD, DIRECTIONS, antennaBeamDirections_DEG, tiltAngle_DEG, tiltAngle_DEG_str, STATISTICAL_ANALYSIS, EPISODES = load_settings()
+    SAMPLING_FREQUENCY, lines_to_be_read, ADC_RANGE_BITS, ADC_RANGE_V, COMPLEX_FFT, SMOOTHING, BANDWIDTH_THRESHOLD, HANNING_WINDOWING, ZERO_FORCING, FFT_initialized, freqBins_FFT, smoothingBins, minBin, frequencyMin_fixed, maxBin, frequencyMax_fixed, OFFSET_REMOVAL, SPECTROGRAM_ENABLED, STFT_OVERLAPPING_SAMPLES, STFT_SAMPLES_IN_SEGMENT, STFT_BINS, PWM_PIN, PWM_FREQUENCY, RAW_DATA, SHOW_FIGURE, SAVE_PLOTS, PNG_PLOT, PDF_PLOT, PLOT_PATH, REALTIME_MEAS, TARGET_THRESHOLD, DIRECTIONS, antennaBeamDirections_DEG, tiltAngle_DEG, tiltAngle_DEG_str, STATISTICAL_ANALYSIS, EPISODES = load_settings()
 
     # Save current *.json settings file for offline analysis
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
@@ -54,6 +54,8 @@ def main():
             FFT_dBV_peaks[episode,direction], centroid_frequencies[episode,direction], centroid_start, centroid_stop, centroid_threshold, surface_velocities_table[episode,direction], FFT_dBV, FFT_dBV_smoothed, freqAxis_Hz = FFT(complexSignal_mV, COMPLEX_FFT, IQ_arrays_length, SAMPLING_FREQUENCY, freqBins_FFT, OFFSET_REMOVAL, HANNING_WINDOWING, ZERO_FORCING, minBin, maxBin, SMOOTHING, smoothingBins, TARGET_THRESHOLD, BANDWIDTH_THRESHOLD, frequencyMin_fixed, direction_DEG, tiltAngle_DEG, FFT_initialized)
             # Plot of FFT
             plot_doppler_centroid(freqAxis_Hz, FFT_dBV, FFT_dBV_smoothed, centroid_start, centroid_stop, centroid_threshold, "frequency (Hz)", "FFT magnitude (dBV)", ZERO_FORCING, frequencyMin_fixed, frequencyMax_fixed, SHOW_FIGURE, SAVE_PLOTS, PDF_PLOT, PNG_PLOT, PLOT_PATH)
+            if SPECTROGRAM_ENABLED:
+                plot_spectrogram(complexSignal_mV, SAMPLING_FREQUENCY, STFT_OVERLAPPING_SAMPLES, STFT_SAMPLES_IN_SEGMENT, STFT_BINS, 'time (s)', 'frequency (Hz)', SHOW_FIGURE, SAVE_PLOTS, PDF_PLOT, PNG_PLOT, PLOT_PATH)
 
             # Console log of real-time measurements
             if REALTIME_MEAS == True:

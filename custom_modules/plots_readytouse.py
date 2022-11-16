@@ -1,5 +1,7 @@
 import matplotlib.pyplot as plt
 from datetime import datetime
+from scipy import signal
+from scipy.fft import fftshift
 
 # Figure Width (inches)
 FIG_SIZE_X_INCHES = 3.5
@@ -99,6 +101,36 @@ def plot_doppler_centroid(FFT_x_axis_data, FFT_y_axis_data, FFT_smoothed_y_axis_
     plt.axvline(x=centroid_stop, color='k', linestyle=':')
     plt.grid(True)
     plt.legend(['initial', 'smoothed'])
+    plt.tight_layout()
+
+    if savePlot and png_plot:
+        plt.savefig(plotPathPNG)
+    if savePlot and pdf_plot:
+        plt.savefig(plotPathPDF)
+    if showFigure:
+        plt.show()
+    # Clear figure
+    plt.clf()
+
+def plot_spectrogram(complexSignal, SAMPLING_FREQUENCY, OVERLAPPING_SAMPLES: int, SAMPLES_IN_SEGMENT: int, STFT_BINS: int, x_axis_label='X axis data (adim.)', y_axis_label='Y axis data (adim.)', showFigure=False, savePlot=True, pdf_plot=True, png_plot=True, plotPath=None):
+    # Output File Paths for Plot
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
+    if plotPath == None: # e.g. when standalone script
+        plotPathPNG = timestamp + '.png'
+        plotPathPDF = timestamp + '.pdf'
+    else:
+        plotPathPNG = plotPath + timestamp + '.png'
+        plotPathPDF = plotPath + timestamp + '.pdf'
+
+    # Plot Configuration
+    plt.rcParams['font.family'] = FONT_CHOICE
+    plt.rcParams['axes.linewidth'] = LINE_WIDTH
+    plt.rcParams["figure.figsize"] = (FIG_SIZE_X_INCHES, FIG_SIZE_Y_INCHES)
+
+    f, t, Sxx = signal.spectrogram(complexSignal, fs = SAMPLING_FREQUENCY, noverlap=OVERLAPPING_SAMPLES, nperseg = SAMPLES_IN_SEGMENT, nfft = STFT_BINS, scaling = 'spectrum', return_onesided=False, detrend=False)
+    plt.pcolormesh(t, fftshift(f), fftshift(Sxx, axes=0), shading='nearest')
+    plt.ylabel(y_axis_label)
+    plt.xlabel(x_axis_label)
     plt.tight_layout()
 
     if savePlot and png_plot:

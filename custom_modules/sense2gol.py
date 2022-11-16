@@ -45,6 +45,10 @@ def load_settings():
     PRINT_FFT_INFO = settings["signal-processing"]["print-fft-info"] # Boolean.
     FFT_initialized, freqBins_FFT, smoothingBins, minBin, frequencyMin_fixed, maxBin, frequencyMax_fixed = FFT_parameters(COMPLEX_FFT, SAMPLING_FREQUENCY, FFT_RESOL, SMOOTHING, SMOOTHING_WINDOW, FREQUENCY_MIN, FREQUENCY_MAX, PRINT_FFT_INFO)
     OFFSET_REMOVAL = settings["signal-processing"]["offset-removal"] # Boolean.
+    SPECTROGRAM_ENABLED = settings["signal-processing"]["spectrogram-enabled"] # Boolean.
+    STFT_OVERLAPPING_SAMPLES = settings["signal-processing"]["stft-overlapping-samples"] # Number of samples.
+    STFT_SAMPLES_IN_SEGMENT = settings["signal-processing"]["stft-samples-in-segment"] # Number of samples.
+    STFT_BINS = settings["signal-processing"]["stft-bins"] # Number of bins.
 
     # Raspberry Pi Zero settings
     PWM_PIN = settings["raspberry-pi-zero"]["pwm-board-pin"] # Board pin number.
@@ -73,7 +77,7 @@ def load_settings():
     if STATISTICAL_ANALYSIS == True:
         assert (EPISODES>=3), "Number of episodes should be 3 at least. Please edit \"settings.json\"."
     
-    return SAMPLING_FREQUENCY, lines_to_be_read, ADC_RANGE_BITS, ADC_RANGE_V, COMPLEX_FFT, SMOOTHING, BANDWIDTH_THRESHOLD, HANNING_WINDOWING, ZERO_FORCING, FFT_initialized, freqBins_FFT, smoothingBins, minBin, frequencyMin_fixed, maxBin, frequencyMax_fixed, OFFSET_REMOVAL, PWM_PIN, PWM_FREQUENCY, RAW_DATA, SHOW_FIGURE, SAVE_PLOTS, PNG_PLOT, PDF_PLOT, PLOT_PATH, REALTIME_MEAS, TARGET_THRESHOLD, DIRECTIONS, antennaBeamDirections_DEG, tiltAngle_DEG, tiltAngle_DEG_str, STATISTICAL_ANALYSIS, EPISODES
+    return SAMPLING_FREQUENCY, lines_to_be_read, ADC_RANGE_BITS, ADC_RANGE_V, COMPLEX_FFT, SMOOTHING, BANDWIDTH_THRESHOLD, HANNING_WINDOWING, ZERO_FORCING, FFT_initialized, freqBins_FFT, smoothingBins, minBin, frequencyMin_fixed, maxBin, frequencyMax_fixed, OFFSET_REMOVAL, SPECTROGRAM_ENABLED, STFT_OVERLAPPING_SAMPLES, STFT_SAMPLES_IN_SEGMENT, STFT_BINS, PWM_PIN, PWM_FREQUENCY, RAW_DATA, SHOW_FIGURE, SAVE_PLOTS, PNG_PLOT, PDF_PLOT, PLOT_PATH, REALTIME_MEAS, TARGET_THRESHOLD, DIRECTIONS, antennaBeamDirections_DEG, tiltAngle_DEG, tiltAngle_DEG_str, STATISTICAL_ANALYSIS, EPISODES
 
 def txt_extract(file_name, ADC_RANGE_BITS, ADC_RANGE_V, SAMPLING_FREQUENCY):
     # Extract raw samples from txt file
