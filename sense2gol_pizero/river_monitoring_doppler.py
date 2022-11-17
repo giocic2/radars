@@ -14,9 +14,13 @@ from custom_modules.plots_readytouse import plot_doppler_centroid, plot_IFI_IFQ,
 from custom_modules.sense2gol import txt_extract, serialPort_acquisition, load_settings
 from custom_modules.servo_motor import define_PWM_pin, rotate_servo_to_angle, shut_down_servo
 from custom_modules.signal_processing import FFT
+from custom_modules.antenna_footprint import evaluate_antenna_footprint
 
 def main():
-    SAMPLING_FREQUENCY, lines_to_be_read, ADC_RANGE_BITS, ADC_RANGE_V, COMPLEX_FFT, SMOOTHING, BANDWIDTH_THRESHOLD, HANNING_WINDOWING, ZERO_FORCING, FFT_initialized, freqBins_FFT, smoothingBins, minBin, frequencyMin_fixed, maxBin, frequencyMax_fixed, OFFSET_REMOVAL, SPECTROGRAM_ENABLED, STFT_OVERLAPPING_SAMPLES, STFT_SAMPLES_IN_SEGMENT, STFT_BINS, PWM_PIN, PWM_FREQUENCY, RAW_DATA, SHOW_FIGURE, SAVE_PLOTS, PNG_PLOT, PDF_PLOT, PLOT_PATH, REALTIME_MEAS, TARGET_THRESHOLD, DIRECTIONS, antennaBeamDirections_DEG, tiltAngle_DEG, tiltAngle_DEG_str, STATISTICAL_ANALYSIS, EPISODES = load_settings()
+    HEIGHT_FROM_WATER_LEVEL, ANTENNA_BEAM_WIDTH_ELEVATION, ANTENNA_BEAM_WIDTH_AZIMUTH, SAMPLING_FREQUENCY, lines_to_be_read, ADC_RANGE_BITS, ADC_RANGE_V, COMPLEX_FFT, SMOOTHING, BANDWIDTH_THRESHOLD, HANNING_WINDOWING, ZERO_FORCING, FFT_initialized, freqBins_FFT, smoothingBins, minBin, frequencyMin_fixed, maxBin, frequencyMax_fixed, OFFSET_REMOVAL, SPECTROGRAM_ENABLED, STFT_OVERLAPPING_SAMPLES, STFT_SAMPLES_IN_SEGMENT, STFT_BINS, PWM_PIN, PWM_FREQUENCY, RAW_DATA, SHOW_FIGURE, SAVE_PLOTS, PNG_PLOT, PDF_PLOT, PLOT_PATH, REALTIME_MEAS, TARGET_THRESHOLD, DIRECTIONS, antennaBeamDirections_DEG, tiltAngle_DEG, tiltAngle_DEG_str, STATISTICAL_ANALYSIS, EPISODES = load_settings()
+
+    # Antenna footprint evaluation
+    evaluate_antenna_footprint(HEIGHT_FROM_WATER_LEVEL, ANTENNA_BEAM_WIDTH_ELEVATION, ANTENNA_BEAM_WIDTH_AZIMUTH, tiltAngle_DEG, antennaBeamDirections_DEG, SHOW_FIGURE, SAVE_PLOTS, PDF_PLOT, PNG_PLOT, PLOT_PATH)
 
     # Save current *.json settings file for offline analysis
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
