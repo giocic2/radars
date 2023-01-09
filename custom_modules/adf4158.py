@@ -7,7 +7,8 @@ VCO_FREQUENCY_STOP = 24.5e9 # Hz
 PRESCALER_RATIO = 1/16
 UPCHIRP_WAIT_TIME = 0 # s
 UPCHIRP_TIME = 1.25e-3 # s
-UPCHIRP_NUMBER_OF_STEPS = 100
+UPCHIRP_NUMBER_OF_STEPS = 1000
+REF_IN_FREQUENCY = 10e6 # Hz
 ### End of User Input
 print("FMCW ramp parameters (triangle chirp):")
 print("VCO frequency start: {:e} Hz".format(VCO_FREQUENCY_START))
@@ -37,7 +38,6 @@ print("IF frequency of static target: {:e} Hz/m".format(2*vcoSweep/3e8/UPCHIRP_T
 # ADF4158 parameters
 print("\nADF4158 parameters:")
 # PFD settings
-REF_IN_FREQUENCY = 10e6 # Hz
 RDIV2_ENABLED = False # This can be used to provide a 50% duty cycle signal at the PFD for use with cycle slip reduction
 CYCLE_SLIP_REDUCTION_ENABLED = False # method for improving lock times
 REFERENCE_DOUBLER_ENABLED = True # Multiplies REF_IN by 2
@@ -52,7 +52,7 @@ print("Frequency resolution (VCO): {:e} Hz".format(vcoResolution))
 
 # Charge pump settings
 RESISTOR_CHARGE_PUMP = 5.1e3 # Ohm
-CHARGE_PUMP_LEVEL = 0 # 4-bit word (integer value from 0 to 15)
+CHARGE_PUMP_LEVEL = 7 # 4-bit word (integer value from 0 to 15)
 MAX_CHARGE_PUMP_CURRENT = 25.5/RESISTOR_CHARGE_PUMP # A
 print("Charge Pump Current = {:e} A".format((CHARGE_PUMP_LEVEL+1)*MAX_CHARGE_PUMP_CURRENT/16))
 CHARGE_PUMP_THREESTATE_ENABLED = False # set to False for normal operation
@@ -102,6 +102,10 @@ READBACK_TO_MUXOUT = 0b00       # 2-bit word, only two values allowed. Allows re
 CLK2 = 1 # 12-bit word (integer between 1 and 4095). Used in ramp mode and in fast-lock mode.
 assert CLK2 >= 1 and CLK2 <= 4095, "CLK2 must be an integer between 1 and 4095"
 CLK1 = round(stepDuration*pfdFrequency/CLK2) # 12-bit word (integer between 1 and 4095). Used in ramp mode.
+while CLK1 > 4095:
+    CLK2=CLK2+1
+    assert CLK2 >= 1 and CLK2 <= 4095, "CLK2 must be an integer between 1 and 4095"
+    CLK1 = round(stepDuration*pfdFrequency/CLK2) # 12-bit word (integer between 1 and 4095). Used in ramp mode.
 assert CLK1 >= 1 and CLK1 <= 4095, "CLK1 must be an integer between 1 and 4095"
 CLOCK_DIVIDER_MODE = 0b00   # 2-bit word (integer between 0 and 3)
                             # 0b00: clock divider off
@@ -120,18 +124,20 @@ DELAYED_START_ENABLED = False
 DELAYED_START_WORD = 0 # 12-bit word (integer between 0 and 4095)
 
 # Frequency settings
-if VCO_FREQUENCY_START/PRESCALER_RATIO <= 3e9: # dual-modulus prescaler depends on maximum PLL frequency 
+if pllFrequencyStop <= 3e9: # dual-modulus prescaler depends on maximum PLL frequency 
     N_MIN = 23
     PRESCALER_BIT = 0 # 4/5 dual-modulus prescaler
 else:
     N_MIN = 75
     PRESCALER_BIT = 1 # 8/9 dual-modulus prescaler
-INT = 146 # 12-bit word (integer between 23 and 4095)
-FRAC = 29_360_128 # 25-bit word (integer between 0 and 33_554_431)
+INT = int(pllFrequencyStart/pfdFrequency) # 12-bit word (integer between 23 and 4095)
+assert INT >= N_MIN and INT <= 4095, "INT must be an integer between N_MIN and 4095"
+FRAC = round((pllFrequencyStart/pfdFrequency - INT)*2**25) # 25-bit word (integer between 0 and 33_554_431)
+assert FRAC >=0 and FRAC <= 33_554_431, "FRAC must be an integer between 0 and 33_554_431"
 pllFrequency = pfdFrequency * (INT + (FRAC/2**25)) # Hz
-print("PLL frequency = {:e} Hz".format(pllFrequency))
-print("VCO frequency = {:e} Hz".format(pllFrequency/PRESCALER_RATIO))
-RAMP_MODE = 0   # 2-bit word (integer between 0 and 3).
+print("Synthesized PLL frequency (start) = {:e} Hz".format(pllFrequency))
+print("Synthesized VCO frequency (start)= {:e} Hz".format(pllFrequency/PRESCALER_RATIO))
+RAMP_MODE = 1   # 2-bit word (integer between 0 and 3).
                 # 0: continuous sawtooth
                 # 1: continuous triangle
                 # 2: single sawtooth
@@ -146,25 +152,23 @@ INTERRUPT = 0b00    # 2-bit word (integer between 0 and 3). Rising edge of TX_DA
                     # 0b11: load channel, stop sweep
 
 # Frequency modulation
-RAMP_ENABLED = False
+RAMP_ENABLED = True
 FSK_RAMP_ENABLED = False # FSK ramp mode
 RAMP2_ENABLED = False # second ramp
 if RAMP2_ENABLED:
-    print("Ramp 2 is enabled. Ensure to load R5 twice, changing \'Deviation Select\' bit between the two writes.")
-DEVIATION_SELECT = 0b0 # 1-bit word 
+    print("Ramp 2 is enabled. Ensure to load R5 twice, changing \'Deviation Select\' bit and '\Step select\' bit between the two writes.")
+DEVIATION_SELECT_RAMP1 = 0b0
+DEVIATION_SELECT_RAMP2 = 0b1
 STEP_SELECT = 0b0 # 1-bit word
 STEP = UPCHIRP_NUMBER_OF_STEPS # 20-bit word (integer between 0 and 1_048_575). Number of steps in the ramp.
 
-FREQUENCY_STOP = 24.5e9 # Hz
-if FREQUENCY_STOP/PRESCALER_RATIO <= 3e9: # dual-modulus prescaler depends on maximum PLL frequency 
-    N_MIN = 23
-    PRESCALER_BIT = 0 # 4/5 dual-modulus prescaler
-else:
-    N_MIN = 75
-    PRESCALER_BIT = 1 # 8/9 dual-modulus prescaler
 DEV_OFFSET = round(log2((pllStepDeviation)/(pllResolution*(2**15)))) # 4-bit word (integer between 0 and 9)
 assert DEV_OFFSET >= 0 and DEV_OFFSET <= 9, "DEV_OFFSET must be between 0 and 9"
 DEV = round(pllStepDeviation/(pllResolution*(2**DEV_OFFSET))) # 16-bit CA2 word (integer between -32_768 and 32_767)
+while DEV < -32_767 or DEV > 32_767:
+    DEV_OFFSET = DEV_OFFSET+1
+    assert DEV_OFFSET >= 0 and DEV_OFFSET <= 9, "DEV_OFFSET must be between 0 and 9"
+    DEV = round(pllStepDeviation/(pllResolution*(2**DEV_OFFSET))) # 16-bit CA2 word (integer between -32_768 and 32_767)
 assert DEV >= -32_768 and DEV <= 32_767, "DEV must be between -32_768 and 32_767"
 frequencyDeviation = (pfdFrequency/2**25)*(DEV*DEV_OFFSET) # Hz. Frequency deviation for each frequency hop
 
@@ -173,10 +177,12 @@ frequencyDeviation = (pfdFrequency/2**25)*(DEV*DEV_OFFSET) # Hz. Frequency devia
 print("\nR0 register settings:")
 print("Ramp On = {:01b}".format(int(RAMP_ENABLED))) 
 print("MuxOut Control = {:04b} (0x{:01x})".format(MUXOUT_CTRL, MUXOUT_CTRL))
-print("INT = {:012b} (0x{:03x})".format(INT, INT))
+print("INT = {:012b} (0x{:03x}) ({:d})".format(INT, INT, INT))
+print("FRAC = {:025b} (0x{:07x}) ({:d})".format(FRAC, FRAC, FRAC))
 FRAC_MSB = FRAC>>13 # 12-MSBs of FRAC
 print("FRAC 12-MSBs = {:012b} (0x{:03x})".format(FRAC_MSB, FRAC_MSB))
 CTRL_BITS_R0 = 0b000
+print("Control bits: {:03b} (0x{:01x})".format(CTRL_BITS_R0, CTRL_BITS_R0))
 R0_REGISTER = int(RAMP_ENABLED)<<31 | MUXOUT_CTRL<<27 | INT<<15 | FRAC_MSB<<3 | CTRL_BITS_R0
 print("R0 register: {:032b} (0x{:08x})".format(R0_REGISTER, R0_REGISTER)) 
 
@@ -185,6 +191,7 @@ print("\nR1 register settings:")
 FRAC_LSB = FRAC & 0b1_1111_1111_1111 # 13-LSBs of FRAC
 print("FRAC 13-LSBs = {:013b} (0x{:04x})".format(FRAC_LSB, FRAC_LSB))
 CTRL_BITS_R1 = 0b001
+print("Control bits: {:03b} (0x{:01x})".format(CTRL_BITS_R1, CTRL_BITS_R1))
 R1_REGISTER = FRAC_LSB<<15 | CTRL_BITS_R1
 # Assert R0 and R1 register settings
 assert (INT + (FRAC/2**25))>=N_MIN, "N must be greater than or equal to {}".format(N_MIN)
@@ -202,6 +209,7 @@ print("D = {:01b}".format(REFERENCE_DOUBLER_ENABLED))
 print("R = {:05b} (0x{:02x})".format(R_COUNTER%32, R_COUNTER%32))
 print("CLK1 = {:012b} (0x{:03x}) ({:d})".format(CLK1, CLK1, CLK1))
 CTRL_BITS_R2 = 0b010
+print("Control bits: {:03b} (0x{:01x})".format(CTRL_BITS_R2, CTRL_BITS_R2))
 R2_REGISTER = CYCLE_SLIP_REDUCTION_ENABLED<<28 | CHARGE_PUMP_LEVEL<<24 | PRESCALER_BIT<<22 | RDIV2_ENABLED<<21 | REFERENCE_DOUBLER_ENABLED<<20 | (R_COUNTER%32)<<15 | CLK1<<3 | CTRL_BITS_R2
 # Assert R2 register settings
 if CYCLE_SLIP_REDUCTION_ENABLED:
@@ -223,6 +231,7 @@ print("Power-Down = {:01b}".format(POWER_DOWN_ENABLED))
 print("Charge Pump Three-State = {:01b}".format(CHARGE_PUMP_THREESTATE_ENABLED))
 print("Counter Reset = {:01b}".format(COUNTER_RESET))
 CTRL_BITS_R3 = 0b011
+print("Control bits: {:03b} (0x{:01x})".format(CTRL_BITS_R3, CTRL_BITS_R3))
 R3_REGISTER = N_SEL<<15 | SD_NOT_RESET<<14 | RAMP_MODE<<10 | PSK_ENABLED<<9 | FSK_ENABLED<<8 | LDP<<7 | PHASE_DETECTOR_POLARITY<<6 | POWER_DOWN_ENABLED<<5 | CHARGE_PUMP_THREESTATE_ENABLED<<4 | COUNTER_RESET<<3 | CTRL_BITS_R3
 print("R3 register: {:032b} (0x{:08x})".format(R3_REGISTER, R3_REGISTER))
 
@@ -235,6 +244,7 @@ print("Readback to MUXOUT: {:02b}".format(READBACK_TO_MUXOUT))
 print("Clock Divider (DIV) Mode: {:02b}".format(CLOCK_DIVIDER_MODE))
 print("CLK2 = {:012b} (0x{:03x}) ({:d})".format(CLK2, CLK2, CLK2))
 CTRL_BITS_R4 = 0b100
+print("Control bits: {:03b} (0x{:01x})".format(CTRL_BITS_R4, CTRL_BITS_R4))
 # Assert R4 register settings
 if NEGATIVE_BLEED_CURRENT == 0b11:
     assert READBACK_TO_MUXOUT == 0b00, "READBACK_TO_MUXOUT must be 0b00 when NEGATIVE_BLEED_CURRENT is 0b11."
@@ -248,18 +258,21 @@ print("PAR Ramp: {:01b}".format(PAR_RAMP_ENABLED))
 print("Interrupt: {:02b}".format(INTERRUPT))
 print("FSK Ramp Enable: {:01b}".format(FSK_RAMP_ENABLED))
 print("Ramp 2 Enable: {:01b}".format(RAMP2_ENABLED))
-print("Deviation Select: {:01b}".format(DEVIATION_SELECT))
+print("Deviation Select (load 1): {:01b}".format(DEVIATION_SELECT_RAMP1))
+print("Deviation Select (load 2): {:01b}".format(DEVIATION_SELECT_RAMP2))
 print("Deviation Offset Word: {:04b} (0x{:01x}) ({:d})".format(DEV_OFFSET, DEV_OFFSET, DEV_OFFSET))
 print("Deviation Word: {:016b} (0x{:04x}) ({:d})".format((DEV+32_768 ^ 0b1<<15), (DEV+32_768 ^ 0b1<<15), (DEV+32_768 ^ 0b1<<15)))
 CTRL_BITS_R5 = 0b101
-R5_REGISTER = TX_RAMP_CLK<<29 | PAR_RAMP_ENABLED<<28 | INTERRUPT<<26 | FSK_RAMP_ENABLED<<25 | RAMP2_ENABLED<<24 | DEVIATION_SELECT<<23 | DEV_OFFSET<<19 | (DEV+32_768 ^ 0b1<<15)<<3 | CTRL_BITS_R5
-print("R5 register: {:032b} (0x{:08x})".format(R5_REGISTER, R5_REGISTER))
+print("Control bits: {:03b} (0x{:01x})".format(CTRL_BITS_R5, CTRL_BITS_R5))
+R5_REGISTER_LOAD1 = TX_RAMP_CLK<<29 | PAR_RAMP_ENABLED<<28 | INTERRUPT<<26 | FSK_RAMP_ENABLED<<25 | RAMP2_ENABLED<<24 | DEVIATION_SELECT_RAMP1<<23 | DEV_OFFSET<<19 | (DEV+32_768 ^ 0b1<<15)<<3 | CTRL_BITS_R5
+print("R5 register (load 1): {:032b} (0x{:08x})".format(R5_REGISTER_LOAD1, R5_REGISTER_LOAD1))
 
 # R6 register
 print("\nR6 register settings:")
 print("Step SEL: {:01b}".format(STEP_SELECT))
 print("Step Work: {:020b} (0x{:05x})".format(STEP, STEP))
 CTRL_BITS_R6 = 0b110
+print("Control bits: {:03b} (0x{:01x})".format(CTRL_BITS_R6, CTRL_BITS_R6))
 R6_REGISTER = STEP_SELECT<<23 | STEP<<3 | CTRL_BITS_R6
 print("R6 register: {:032b} (0x{:08x})".format(R6_REGISTER, R6_REGISTER))
 
@@ -271,6 +284,7 @@ print("Delay Clock Select: {:01b}".format(DELAY_CLOCK_SELECT))
 print("Delayed Start Enable: {:01b}".format(DELAYED_START_ENABLED))
 print("Delayed Start Word: {:016b} (0x{:04x})".format(DELAYED_START_WORD, DELAYED_START_WORD))
 CTRL_BITS_R7 = 0b111
+print("Control bits: {:03b} (0x{:01x})".format(CTRL_BITS_R7, CTRL_BITS_R7))
 R7_REGISTER = RAMP_DELAY_FAST_LOCK_ENABLED<<18 | RAMP_DELAY_ENABLED<<17 | DELAY_CLOCK_SELECT<<16 | DELAYED_START_ENABLED<<15 | DELAYED_START_WORD<<3 | CTRL_BITS_R7
 print("R7 register: {:032b} (0x{:08x})".format(R7_REGISTER, R7_REGISTER))
 
