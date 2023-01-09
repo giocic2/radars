@@ -15,6 +15,13 @@ def load_settings():
     # Load settings from *.json file.
     with open('sense2gol_pizero/settings.json') as f:
         settings = json.load(f)
+    
+    # Radar installation settings
+    HEIGHT_FROM_WATER_LEVEL = settings["radar-installation"]["height-from-water-level"] # meters.
+    TILT_ANGLE_DEG = settings["radar-installation"]["tilt-angle-deg"] # Degree.
+    tiltAngle_DEG_str = "tilt" + str("{0:.1f}".format(TILT_ANGLE_DEG)) + "deg"
+    ANTENNA_BEAM_WIDTH_ELEVATION = settings["radar-installation"]["antenna-beam-width-elevation"] # Degree.
+    ANTENNA_BEAM_WIDTH_AZIMUTH = settings["radar-installation"]["antenna-beam-width-azimuth"] # Degree.
 
     # Sense2GoL settings
     SAMPLING_FREQUENCY = float(settings["sense2gol"]["sampling-frequency-Hz"]) # Hz
@@ -68,8 +75,6 @@ def load_settings():
         antennaBeamDirections_DEG = np.array([0])
     else:
         antennaBeamDirections_DEG = np.linspace(start=MIN_BEAM_ANGLE, stop=MAX_BEAM_ANGLE, num=DIRECTIONS, endpoint=True) # Degrees.
-    tiltAngle_DEG = 45 # Degrees.
-    tiltAngle_DEG_str = "tilt" + str("{0:.1f}".format(tiltAngle_DEG)) + "deg"
 
     # Statistical analysis settings
     STATISTICAL_ANALYSIS = settings["statistical-analysis"]["enabling"] # Boolean. Enable/disable statystical analysis.
@@ -77,7 +82,7 @@ def load_settings():
     if STATISTICAL_ANALYSIS == True:
         assert (EPISODES>=3), "Number of episodes should be 3 at least. Please edit \"settings.json\"."
     
-    return SAMPLING_FREQUENCY, lines_to_be_read, ADC_RANGE_BITS, ADC_RANGE_V, COMPLEX_FFT, SMOOTHING, BANDWIDTH_THRESHOLD, HANNING_WINDOWING, ZERO_FORCING, FFT_initialized, freqBins_FFT, smoothingBins, minBin, frequencyMin_fixed, maxBin, frequencyMax_fixed, OFFSET_REMOVAL, SPECTROGRAM_ENABLED, STFT_OVERLAPPING_SAMPLES, STFT_SAMPLES_IN_SEGMENT, STFT_BINS, PWM_PIN, PWM_FREQUENCY, RAW_DATA, SHOW_FIGURE, SAVE_PLOTS, PNG_PLOT, PDF_PLOT, PLOT_PATH, REALTIME_MEAS, TARGET_THRESHOLD, DIRECTIONS, antennaBeamDirections_DEG, tiltAngle_DEG, tiltAngle_DEG_str, STATISTICAL_ANALYSIS, EPISODES
+    return HEIGHT_FROM_WATER_LEVEL, ANTENNA_BEAM_WIDTH_ELEVATION, ANTENNA_BEAM_WIDTH_AZIMUTH, SAMPLING_FREQUENCY, lines_to_be_read, ADC_RANGE_BITS, ADC_RANGE_V, COMPLEX_FFT, SMOOTHING, BANDWIDTH_THRESHOLD, HANNING_WINDOWING, ZERO_FORCING, FFT_initialized, freqBins_FFT, smoothingBins, minBin, frequencyMin_fixed, maxBin, frequencyMax_fixed, OFFSET_REMOVAL, SPECTROGRAM_ENABLED, STFT_OVERLAPPING_SAMPLES, STFT_SAMPLES_IN_SEGMENT, STFT_BINS, PWM_PIN, PWM_FREQUENCY, RAW_DATA, SHOW_FIGURE, SAVE_PLOTS, PNG_PLOT, PDF_PLOT, PLOT_PATH, REALTIME_MEAS, TARGET_THRESHOLD, DIRECTIONS, antennaBeamDirections_DEG, TILT_ANGLE_DEG, tiltAngle_DEG_str, STATISTICAL_ANALYSIS, EPISODES
 
 def txt_extract(file_name, ADC_RANGE_BITS, ADC_RANGE_V, SAMPLING_FREQUENCY):
     # Extract raw samples from txt file

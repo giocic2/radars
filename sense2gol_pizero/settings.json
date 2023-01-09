@@ -1,11 +1,12 @@
 {
     "comment": "Be aware that not all the settings suggested here could be modified as you like. Read comments on sense2gol_pizero.py and Sense2GoL manuals for more information.",
     "radar-installation":{
-        "height-from-water-level": 0,
+        "height-from-water-level-m": 0,
         "height-from-ground-level-comment":"Needs to be measured manually and the valued registered here before starting the radar.",
-        "antenna-beam-width-elevation": 80,
-        "antenna-beam-width-azimuth": 29,
-        "antenna-beam-width-comment":"Specified on Sense2GoL application note."
+        "antenna-beam-width-elevation-deg": 80,
+        "antenna-beam-width-azimuth-deg": 29,
+        "antenna-beam-width-comment":"Specified on Sense2GoL application note.",
+        "tilt-angle-deg":45
     },
     "sense2gol":{
         "sampling-frequency-Hz":3300,
