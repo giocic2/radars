@@ -10,7 +10,7 @@ UPCHIRP_TIME = 1.25e-3 # s
 UPCHIRP_NUMBER_OF_STEPS = 1000
 REF_IN_FREQUENCY = 10e6 # Hz
 ### End of User Input
-print("FMCW ramp parameters (triangle chirp):")
+print("\nFMCW ramp parameters (triangle chirp):")
 print("VCO frequency start: {:e} Hz".format(VCO_FREQUENCY_START))
 print("VCO frequency stop: {:e} Hz".format(VCO_FREQUENCY_STOP))
 vcoSweep = VCO_FREQUENCY_STOP - VCO_FREQUENCY_START # Hz
@@ -52,7 +52,7 @@ print("Frequency resolution (VCO): {:e} Hz".format(vcoResolution))
 
 # Charge pump settings
 RESISTOR_CHARGE_PUMP = 5.1e3 # Ohm
-CHARGE_PUMP_LEVEL = 0 # 4-bit word (integer value from 0 to 15)
+CHARGE_PUMP_LEVEL = 7 # 4-bit word (integer value from 0 to 15)
 MAX_CHARGE_PUMP_CURRENT = 25.5/RESISTOR_CHARGE_PUMP # A
 print("Charge Pump Current = {:e} A".format((CHARGE_PUMP_LEVEL+1)*MAX_CHARGE_PUMP_CURRENT/16))
 CHARGE_PUMP_THREESTATE_ENABLED = False # set to False for normal operation
