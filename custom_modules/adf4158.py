@@ -80,9 +80,9 @@ SD_NOT_RESET = False # control the reset of sigma-delta modulator on each write 
 LDP = 0     # Lock Detect Precision.
             # 0: 24 PFD cycles before digital lock detect is set
             # 1: 40 PFD cycles before digital lock detect is set
-PHASE_DETECTOR_POLARITY = 0   # 1-bit word 
-                            # 0: VCO characteristics are positive
-                            # 1: VCO characteristics are negative
+PHASE_DETECTOR_POLARITY = 1   # 1-bit word 
+                            # 0: VCO characteristics are negative
+                            # 1: VCO characteristics are positive
 POWER_DOWN_ENABLED = False # the registers values are retained, but the ADF4158 is disabled (three-state mode).
 COUNTER_RESET = False # when True, the synthesizer counters are held to reset.
 LOAD_ENABLE_SYNC = False # when True, the load enable pin is synchronized with the REF_IN signal.
