@@ -33,7 +33,7 @@ vcoStepDeviation = (VCO_FREQUENCY_STOP - VCO_FREQUENCY_START)/UPCHIRP_NUMBER_OF_
 print("Step deviation (VCO): {:e} Hz".format(vcoStepDeviation))
 pllStepDeviation = vcoStepDeviation*PRESCALER_RATIO # Hz
 print("Step deviation (PLL): {:e} Hz".format(pllStepDeviation))
-print("IF frequency of static target: {:e} Hz/m".format(2*vcoSweep/3e8/UPCHIRP_TIME))
+print("IF frequency of static target: {:e} Hz/m".format(2*vcoSweep/(3e8*UPCHIRP_TIME)))
 
 # ADF4158 parameters
 print("\nADF4158 parameters:")
