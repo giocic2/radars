@@ -52,7 +52,7 @@ print("Frequency resolution (VCO): {:e} Hz".format(vcoResolution))
 
 # Charge pump settings
 RESISTOR_CHARGE_PUMP = 5.1e3 # Ohm
-CHARGE_PUMP_LEVEL = 7 # 4-bit word (integer value from 0 to 15)
+CHARGE_PUMP_LEVEL = 0 # 4-bit word (integer value from 0 to 15)
 MAX_CHARGE_PUMP_CURRENT = 25.5/RESISTOR_CHARGE_PUMP # A
 print("Charge Pump Current = {:e} A".format((CHARGE_PUMP_LEVEL+1)*MAX_CHARGE_PUMP_CURRENT/16))
 CHARGE_PUMP_THREESTATE_ENABLED = False # set to False for normal operation
@@ -107,7 +107,7 @@ while CLK1 > 4095:
     assert CLK2 >= 1 and CLK2 <= 4095, "CLK2 must be an integer between 1 and 4095"
     CLK1 = round(stepDuration*pfdFrequency/CLK2) # 12-bit word (integer between 1 and 4095). Used in ramp mode.
 assert CLK1 >= 1 and CLK1 <= 4095, "CLK1 must be an integer between 1 and 4095"
-CLOCK_DIVIDER_MODE = 0b00   # 2-bit word (integer between 0 and 3)
+CLOCK_DIVIDER_MODE = 0b11   # 2-bit word (integer between 0 and 3)
                             # 0b00: clock divider off
                             # 0b01: fast-lock divider
                             # 0b10: reserved
